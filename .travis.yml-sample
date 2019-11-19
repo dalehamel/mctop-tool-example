@@ -1,0 +1,13 @@
+language: generic
+dist: bionic
+services:
+- docker
+script:
+- make
+- rm .gitignore
+env: // Add secret here via travis instructions
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: "$GITHUB_TOKEN"
+  target_branch: gh-pages

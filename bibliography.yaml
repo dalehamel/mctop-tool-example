@@ -1,0 +1,7 @@
+references:
+- id: this-document
+  title: The very document you are presently reading
+  author:
+  - given: Jane
+    family: Smith
+  URL: http://example.org
