@@ -1,5 +1,5 @@
 ---
-title: Developing the mctop tool
+title: Developing the mctop tool with eBPF
 author: Dale Hamel
 
 header-includes: |

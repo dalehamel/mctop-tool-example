@@ -1,6 +1,6 @@
 # bpftrace script for mcsnoop
 
-With a basic test lab set up, I could now look into how I might get cleaner
+With a basic test lab now set up, I could now look into how I might get cleaner
 data out of the other dtrace probes.
 
 Looking again at the dtrace file, I saw that all of the commands had dtrace

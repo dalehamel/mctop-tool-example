@@ -30,6 +30,7 @@ pandoc_build()
       --bibliography=bibliography.yaml \
       --csl "${BIB_FORMAT_CSL}.csl" \
       --template=./templates/GitHub.html5 \
+      --filter pandoc-crossref \
       --filter pandoc-citeproc \
       --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
       -o output/doc.${format}
@@ -41,6 +42,7 @@ pandoc_build()
       --metadata link-citations=true \
       --bibliography=bibliography.yaml \
       --csl "${BIB_FORMAT_CSL}.csl" \
+      --filter pandoc-crossref \
       --filter pandoc-citeproc \
       --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
       -o output/doc.${format}
@@ -51,6 +53,7 @@ pandoc_build()
       --metadata link-citations=true \
       --bibliography=bibliography.yaml \
       --csl "${BIB_FORMAT_CSL}.csl" \
+      --filter pandoc-crossref \
       --filter pandoc-citeproc \
       --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
       -o output/doc.${format}

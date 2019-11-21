@@ -18,4 +18,4 @@ inform application decisions on how to utilize caching patterns under load.
 To fast forward to the end, the tool I produced was a port of the original
 `mctop` tool:
 
-![mctop](./img/mctop.gif)
+![](./img/mctop.gif)

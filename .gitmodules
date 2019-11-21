@@ -10,3 +10,6 @@
 [submodule "src/mctop"]
 	path = src/mctop
 	url = https://github.com/etsy/mctop.git
+[submodule "src/bpf-perf-tools-book"]
+	path = src/bpf-perf-tools-book
+	url = https://github.com/brendangregg/bpf-perf-tools-book

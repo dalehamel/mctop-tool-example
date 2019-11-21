@@ -76,7 +76,6 @@ RUN apk update && apk upgrade && apk add --no-cache coreutils \
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
     addgroup -g $GID memcache && adduser -D -u $UID -G memcache memcache
 COPY --from=builder /usr/local/bin/memcached /usr/local/bin/memcached
-COPY health.sh /usr/local/bin/
 
 ENTRYPOINT ["memcached"]
 CMD ["memcached"]
