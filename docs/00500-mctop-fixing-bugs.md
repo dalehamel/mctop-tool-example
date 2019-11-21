@@ -20,21 +20,66 @@ Why is it showing the same key?
 Reading full buffer
 
 
+Originally I thought this might be a bug, so I filed an upstream issue
+[@memcached-dtrace-issue]. Despite the argument being of type `char *`, which
+elsewhere in the dtrace probe definitions meant string data, in turned out that
+in this instance, it wasn't guaranteed to be a null terminated string!
+
+Where the probe is called, it is using the macro `ITEM_key` to get the value
+that is fired to dtrace:
+
+```{.c include=src/memcached/memcached.c startLine=1378 endLine=1378}
+```
+
+This macro is just getting the address of the start of the data segment, and
+clearly isn't copying a string into a null-terminated buffer:
+
+```{.c include=src/memcached/memcached.h startLine=116 endLine=116}
+```
+
+So this meant that when we do the `bpf_probe_read` in bcc, it will read the
+full size of the buffer object for its read, and can blow past the actual
+length of the key data! If using `bpf_probe_read_str`, it never finds a null
+byte, and so will also just read the whole buffer.
+
+// FIXME put printk output here
+
+This lead to the keys being stored in the eBPF map being possible non-unique,
+as they would be based on whatever arbitrary data is after the key in the
+buffer that is read.
+
+Luckily, this behavior seems to have actually been intentional for memcached.
+Not performing a string copy is more efficient, which is why the probe just
+submits the buffer and the length of the data to read.
+
+Unfortunately though, When I try to use to use this parameter it throws an eBPF
+verifier error! I'll get more into that later, but for the time being to
+proceed with developing the script, I just decided to fix this problem in
+userspace with python.
+
+### Degarbling in userspace
+
+Without a solution to read the correct length in the C eBPF probe, I decided to
+just pass `keylen` to userspace on my struct, and let python merge keys where
+there happened to be collisions.
+
 Python workaround to combine the keys in userspace:
 
 ```python
 
 ```
 
-### Degarbling in userspace
-
 FIXME put summary of the python hackery here
 
 ### Convincing the verifier of safety
 
-Since this works in bpftrace, as it can do variable length-reads, I thought it
-would make sense to take a look at how this is handled. Looking at the bpftrace
-code generation:
+Now that I had a working script, I decided to try and fix the garbled keys at
+the right layer. Thanks to Bas Smit [@fbs] who pointed out to me that this was
+actually a solved problem in bpftrace, I had some renewed hope that there
+**must** be a way to get the eBPF verifier to accept a non-const length read.
+
+Iknowing that this works in bpftraceI thought it would make sense to take a
+look at how this is handled. Looking at the bpftrace code generation:
 
 ```{.cpp include=src/bpftrace/src/ast/codegen_llvm.cpp startLine=413 endLine=441}
 ```
@@ -44,7 +89,7 @@ size parameter given, and the maximum size. This is sufficient for it to pass
 the eBPF verifier in the linux kernel.
 
 I attempted to do something similar in my probe definition, as described in
-bcc issue 1260 // FIXME show example and link to this issue
+iovisor/bcc#1260 [@bcc-variable-read-issue-comment].
 
 That didn't work unfortunately, it threw this eBPF verifier error:
 

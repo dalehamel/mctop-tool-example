@@ -25,4 +25,4 @@ orignal, and I changed how tray bar of the tool works entirely.
 Since my goal is to share this tool, especially so fans of the original `mctop`
 or `memkeys` command could have access to it, I wanted it to be in good enough
 shape to pass a pull request review. There are strict guidelines for the bcc
-repo, so I set to work on them.
+repo, so I set to work on them. [@bcc-contributing-tools]

@@ -12,7 +12,7 @@ references:
     family: Barczak
   URL: https://github.com/etsy/mctop
 - id: tumblr-memkeys
-  title: original mctop
+  title: memkeys tool, improvements on mctop
   author:
   - given: Blake
     family: Matheny
@@ -45,12 +45,27 @@ references:
   - given: Muhammad
     family: Panji
   URL: https://lzone.de/cheat-sheet/memcached
-
-# https://github.com/memcached/memcached/issues/576
-
-# https://github.com/iovisor/bcc/issues/1260#issuecomment-406365168
-
-# https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/commit/kernel/bpf/verifier.c?id=06c1c049721a995dee2829ad13b24aaf5d7c5cce
-
-# bpftrace string issue
-# https://github.com/iovisor/bpftrace/blob/master/src/ast/codegen_llvm.cpp#L413-L441
+- id: bcc-contributing-tools
+  title: BCC contribution guidelines
+  author:
+  - given: Brendan
+    family: Gregg
+  URL:  https://github.com/iovisor/bcc/blob/master/CONTRIBUTING-SCRIPTS.md#tools
+- id: memcached-dtrace-issue
+  title: "dtrace probes emit byte arrays for keys, not null terminated strings"
+  author:
+  - given: Dale
+    family: Hamel
+  URL: https://github.com/memcached/memcached/issues/576
+- id: bcc-variable-read-issue-comment
+  title: bpf_probe_read requires const len
+  author:
+  - given: Yonghong
+    family: Song
+  URL: https://github.com/iovisor/bcc/issues/1260#issuecomment-406365168
+- id: fbs
+  title: Bas Smit github
+  author:
+  - given: Bas
+    family: Smit
+  URL: https://github.com/fbs
