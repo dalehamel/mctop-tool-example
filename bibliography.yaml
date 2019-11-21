@@ -69,3 +69,15 @@ references:
   - given: Bas
     family: Smit
   URL: https://github.com/fbs
+- id: bassam
+  title: Bassam Mansoob Github
+  author:
+  - given: Bassam
+    family: Mansoob
+  URL: https://github.com/bmansoob
+- id: xkcd-356
+  title: XKCD Comic explaining Nerd-Sniping
+  author:
+  - given: Randall
+    family: Munroe
+  URL:  https://xkcd.com/356/

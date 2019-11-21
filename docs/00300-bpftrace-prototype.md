@@ -1,10 +1,11 @@
 # bpftrace uprobe memcached
 
-We have had access to bpf tools in production via a custom toolbox image for
-about a year now, and have `bpftrace` deployed to production, and distribute
-`kubectl-trace` with our standard development tools. This makes it easy for
-developers to probe their applications, and the system faculties that support
-them.
+One of the reasons we were able to deploy bpftrace so quickly to solve this
+issue was because we have distributed bpf tools in production via a custom toolbox
+image for about a year now, and have `bpftrace` deployed to production, as well
+as using `kubectl-trace` by including it with our standard development tools.
+This makes it easy for developers to probe their applications, and the system
+faculties that support them.
 
 These tools, along with the bcc suite of tools, allow for easier access to
 otherwise complicated things, like kernel kprobes and uprobes. `bpftrace`, in
@@ -23,12 +24,11 @@ code, we can its signature in `memcached.c`:
 This shows us that the second argument (`arg1` if indexd from 0) is the command
 string, which contains the key.
 
-Now that we know the signature, we can verify thatwe  can find this symbol in
-the memcached binary (substitute the specific pid and path if you're attempting
-to reproduce this):
+Now that we know the signature, we can verify that we  can find this symbol in
+the memcached binary:
 
 ```
-objdump-tT /proc/129701/root/usr/local/bin/memcached | grep process_command
+objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command
 
 ```
 [^1]

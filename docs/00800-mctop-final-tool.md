@@ -16,9 +16,17 @@ input. I based most of this on the original `mctop` in ruby.
 I decided to add a couple of fields, as I was capturing more data than the
 orignal, and I changed how tray bar of the tool works entirely.
 
+### Key entry
+
+// FIXME show original mctop ruby select usage
+
 ### Sorting
 
+// Show the sorting code
+
 ### Dumping data
+
+// Dumping the data code, and use-case
 
 ## Finishing touches
 
@@ -26,3 +34,5 @@ Since my goal is to share this tool, especially so fans of the original `mctop`
 or `memkeys` command could have access to it, I wanted it to be in good enough
 shape to pass a pull request review. There are strict guidelines for the bcc
 repo, so I set to work on them. [@bcc-contributing-tools]
+
+This entailed writing the manpage and sample usage.

@@ -17,45 +17,102 @@ analysis on a test shop using a load testing tool. During these load tests, we
 developed some instrumentation with `bpftrace` to gain some insight into the
 cache access pattern under scenarios we saw in the original issue.
 
-## Feature flags key optimization
+Much of the contention in a flash sale is on the database. We have several
+caching strategies in place that protect requests from hammering the MySQL
+instance for a Shopify Pod of shops. To share access to a cache across a pool
+of workers also allows for all workers within a Shopify Pod to benefit.
 
-It was quite clear from other instrumentation that certain rings were hot
-spotting, so we wanted to identify which keys specifically. For this, we used
+## War Games
+
+To make sure that we are testing our systems at scale, platform engineering
+teams at shopify set up a "Red team / Blue team" exercise, where the "Red" team
+tries to devise pathological scenarios using our internal load-testing tool
+used to simulate flash-sale application flows against the platform.
+
+Meanwhile, the other "Blue" monitors the system and mitigates or documents any
+issues that may arise.
+
+During one one such exercise, my colleague Bassam Mansoob [@bassam] detected
+that there were a few instances where a specific Rails Cache ring would be
+overloaded, under very high RPM, which reflected conditions we had seen in in
+real production incidents.
+
+Problems were first detected with our higher-level statsd application
+monitoring:
+
+![](img/request-queueing.png)
+
+We could also see a large spike in the rate of operations:
+
+![](img/set-rate.png)
+
+![](img/get-rate.png)
+
+To pinpoint the problem, we looked to eBPF for detecting the hot keys on the
+production memcached instance we were exercising in our Red/Blue exercise.
+
+### Hot key detection with bpftrace
+
 bpftrace to probe the memcached containers/processes in question.
 
-For one cache we found:
+For one cache we found one extremely hot key using our first uprobe-based
+prototype[^3]:
 
 ```
 @command[gets podYYYrails:NN::feature_rollout:percentages]: 6579978
-@command[delete podYYY:rails:NN::jobs-slo-empty-queue-timestamp-pod140-r]: 2854
-@command[delete podYYY:rails:NN::jobs-empty-queue-timestamp-pod140-realt]: 3572
-@command[gets podYYY:rails:NN::shop:20930625677:ThemeFiles:20930625677:/]: 5638
-@command[set podYYY:rails:NN::feature_rollout:percentages 1 30 13961]: 9266
+@command[delete podYYY:rails:NN::jobs-KEY ...]: 2854
+@command[delete podYYY:rails:NN::jobs-KEY ...]: 3572
+@command[gets podYYY:rails:NN::shop-KEY ...]: 5638
+@command[set podYYY:rails:NN::KEY 1 30 13961]: 9266
 ```
 
-feature_rollout:percentages size is about 13.9KB
-
-And in another cache:
+And in our identity cache used for checking if feature flags for new code are
+enabled:
 
 ```
-@command[gets podXXX:IDC:M:blob:Feature:3320508158388131129:14282421]: 67772
-@command[gets podXXX:IDC:M:blob:Feature:3320508158388131129:152943427708]: 67777
-@command[gets podXXX:IDC:M:blob:Feature:3320508158388131129:152943460476]: 6779
+@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_1]: 67772
+@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_N]: 67777
+@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_M]: 6779
 ```
-Since these keys do not change much, we decided to introduce in-memory caching
-inside of rails itself, so that we can cache these keys for much longer,
-raising a their TTL to minute.
 
-The results were pronounced. Without the cache we see large spikes on both
-memcached, and mcrouter (the proxy we use to access it):
+Having detected these keys were hot, we looked to the code paths that were
+using them.
+
+## Hot key mitigation
+
+Since these keys do not change very frequently, we introduced an in-memory
+cache at the application layer inside of rails itself. This only busts cache
+once a minute, so it is hit much less frequently in the memcached.
+
+The change was simple, but results were pronounced. Without the cache we see
+large spikes on both memcached, and mcrouter (the proxy we use to access it):
+
+## Performance Results
+
+During these hotspotting events, we could see the effect without the cache:
 
 ![](img/without-cache.png)
 
-And with the cache, we saw a substantial reduction:
+And with the in-memory cache, we saw a substantial reduction in latency:
 
 ![](img/with-cache.png)
 
-So a quick little `bpftrace` one liner was able to get us pretty far! But what
-if we could make a bespoke tool to help us identify hot keys and other aspects
-of cache-key access at a glance?
+As for throughput, without the extra caching layer:
 
+![](img/without-cache-throughput.png)
+
+And the improvements with the in-memory cache added:
+
+![](img/with-cache-throughput.png)
+
+So a quick little `bpftrace` one liner was able to get us pretty far towards
+resolving this problem!
+
+From this incident, the idea of making it easier to perform this type of 
+investigation with a bespoke tool came about. One of my colleagues[^4] pointed me
+towards `mctop`, and suggested I try to re-implement it in eBPF.
+
+[^3]: covered later on
+[^4]: Jason Hiltz-Laforge and Scott Francis, put the idea in my head. Jason had
+suggested it to Scott, attempting to "nerd-snipe"[@xkcd-356] him, but Scott
+successfully deflected that onto me.

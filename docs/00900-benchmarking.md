@@ -4,6 +4,13 @@ To show that `mctop` can handle heavy load, I decided to try hooking it up to
 the same load testing tool we use to stress test our memcached and redis
 configurations.
 
+If you want to try it out for yourself, you can pull down the memcached test
+image used here with:
+
+// FIXME
+
+Or build it yourself from the Dockerfile. // FIXME bib ref to dockerfile in this repo
+
 ## memtier benchmark
 
 The `memtier_benchmark` tool can be used to generate load to the test memcached
