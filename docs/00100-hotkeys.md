@@ -12,4 +12,10 @@ These tools both produced a top-like interface focussing on memcached key
 access, with primitive abilities to sort each column. Detecting hot keys can
 inform application decisions on how to utilize caching patterns under load.
 
-mctop
+
+## mctop
+
+To fast forward to the end, the tool I produced was a port of the original
+`mctop` tool:
+
+![mctop](./img/mctop.gif)

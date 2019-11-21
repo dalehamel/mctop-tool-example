@@ -7,3 +7,6 @@
 [submodule "src/bpftrace"]
 	path = src/bpftrace
 	url = https://github.com/iovisor/bpftrace.git
+[submodule "src/mctop"]
+	path = src/mctop
+	url = https://github.com/etsy/mctop.git
