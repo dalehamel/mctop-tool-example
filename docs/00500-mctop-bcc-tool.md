@@ -23,13 +23,28 @@ type descriptions.
 
 Show the code diffs, debugging this with printk and catting trace pipe
 
+## Duplicate keys
+
+Why is it showing the same key?
+
+(solution was to use read_str), FIXME
+
 ## Garbled keys
 
 Reading full buffer
 
-## Duplicate keys
 
-Why is it showing the same key?
+Python workaround to combine the keys in userspace:
+
+```python
+
+```
+
+Bitwise trick going off `KEY_MAX_LENGTH`
+
+```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
+```
+
 
 ## Read to null term
 

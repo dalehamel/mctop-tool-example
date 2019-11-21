@@ -23,6 +23,12 @@ references:
   - given: Marcus
     family: Barczak
   URL: https://codeascraft.com/2012/12/13/mctop-a-tool-for-analyzing-memcache-get-traffic/
+- id: camilo-github
+  title: Camilo Lopez github
+  author:
+  - given: Camilo
+    family: Lopez
+  URL: https://github.com/camilo
 
 # https://github.com/memcached/memcached/issues/576
 

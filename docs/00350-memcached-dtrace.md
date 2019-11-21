@@ -1,4 +1,6 @@
 
+
+
 Looking through the memcached source, I was able to quickly see that there were
 dtrace probes! This meant it would be very likely i'd be able to pull some
 useful data out of memcached.
