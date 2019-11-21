@@ -1,4 +1,4 @@
-# Final tool
+# Final bcc tool
 
 Now that all of the data reading was fixed up, and there was no more need to
 degarble the keys in userspace, the final version of this tool could be

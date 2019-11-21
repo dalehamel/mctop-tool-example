@@ -1,4 +1,4 @@
-# BCC
+# Getting started on a bcc tool
 
 To make a fully-featured port of mctop, bpftrace wouldn't quite fit the bill,
 as it doesn't have quite the same flexibility as python when it comes to

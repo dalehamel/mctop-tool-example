@@ -158,11 +158,4 @@ close enough to 255 that a mask of `0xFF` should work fine:
 ```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
 ```
 
-
-
-## Diving into memcached code
-
-https://github.com/memcached/memcached/blob/master/memcached_dtrace.d#L214
-
-
-
+// FIXME show updated probe code
