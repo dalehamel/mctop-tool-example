@@ -82,7 +82,7 @@ bpftrace -l 'usdt:*' -p ${MEMCACHED_PID}
 
 I can now send a test 'set' command to my memcached instance. I chose one based
 off the benchmarking tool `memtier`, which i'll use later. A simple invocation
-based on standard shell tools is:
+[@memcached-cheatsheet] based on standard shell tools is:
 
 ```
 printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211

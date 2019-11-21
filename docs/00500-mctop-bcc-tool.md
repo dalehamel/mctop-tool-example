@@ -13,8 +13,6 @@ FIXME link to reference guide in bibliography
 ```{.c include=src/bcc/docs/reference_guide.md startLine=234 endLine=241}
 ```
 
-
-
 ## other BCC tools 
 
 ## slabratetop.py
@@ -39,52 +37,4 @@ Then later, in the C code, it uses these to replace `READ_CLASS` and
 
 
 ```{.c include=src/bcc/tools/lib/ucalls.py startLine=138 endLine=160}
-```
-
-## Being able to read the data
-
-Could read key, but not the data size - what?!
-
-explain reading the elf notes, put a table for the systemtap page with the
-type descriptions.
-
-Show the code diffs, debugging this with printk and catting trace pipe
-
-## Duplicate keys
-
-Why is it showing the same key?
-
-(solution was to use read_str), FIXME
-
-## Garbled keys
-
-Reading full buffer
-
-
-Python workaround to combine the keys in userspace:
-
-```python
-
-```
-
-Bitwise trick going off `KEY_MAX_LENGTH`
-
-```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
-```
-
-
-## Read to null term
-
-## Diving into memcached code
-
-https://github.com/memcached/memcached/blob/master/memcached_dtrace.d#L214
-
-
-
-## Degarbling in userspace
-
-# Debug
-
-```
-sudo cat /sys/kernel/debug/tracing/trace_pipe
 ```

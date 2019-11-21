@@ -13,3 +13,6 @@
 [submodule "src/bpf-perf-tools-book"]
 	path = src/bpf-perf-tools-book
 	url = https://github.com/brendangregg/bpf-perf-tools-book
+[submodule "src/linux"]
+	path = src/linux
+	url = https://github.com/torvalds/linux

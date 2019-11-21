@@ -29,6 +29,22 @@ references:
   - given: Camilo
     family: Lopez
   URL: https://github.com/camilo
+- id: bpf-variable-memory
+  title: "bpf: allow helpers access to variable memory"
+  author:
+  - given: Gianluca
+    family: Borello
+  - given: David
+    family: Miller
+  URL:  https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/commit/kernel/bpf/verifier.c?id=06c1c049721a995dee2829ad13b24aaf5d7c5cce
+- id: memcached-cheatsheet
+  title: Memcached Cheatsheet
+  author:
+  - given: Lars
+    family: Windolf
+  - given: Muhammad
+    family: Panji
+  URL: https://lzone.de/cheat-sheet/memcached
 
 # https://github.com/memcached/memcached/issues/576
 
