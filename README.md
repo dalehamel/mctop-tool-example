@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dalehamel/mctop-tool-example.svg?branch=master)](https://travis-ci.org/dalehamel/mctop-tool-example)
+
 # Builting mctop
 
 I ported a tool called mctop to use eBPF and USDT probes.
