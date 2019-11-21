@@ -1,7 +1,34 @@
 references:
 - id: this-document
-  title: The very document you are presently reading
+  title: Developing the mctop tool
   author:
-  - given: Jane
-    family: Smith
+  - given: Dale
+    family: Hamel
   URL: http://example.org
+- id: etsy-mctop
+  title: original mctop
+  author:
+  - given: Marcus
+    family: Barczak
+  URL: https://github.com/etsy/mctop
+- id: tumblr-memkeys
+  title: original mctop
+  author:
+  - given: Blake
+    family: Matheny
+  URL: https://github.com/tumblr/memkeys
+- id: mctop-blog-post
+  title: mctop - a tool for analyzing memcache get traffic
+  author:
+  - given: Marcus
+    family: Barczak
+  URL: https://codeascraft.com/2012/12/13/mctop-a-tool-for-analyzing-memcache-get-traffic/
+
+# https://github.com/memcached/memcached/issues/576
+
+# https://github.com/iovisor/bcc/issues/1260#issuecomment-406365168
+
+# https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/commit/kernel/bpf/verifier.c?id=06c1c049721a995dee2829ad13b24aaf5d7c5cce
+
+# bpftrace string issue
+# https://github.com/iovisor/bpftrace/blob/master/src/ast/codegen_llvm.cpp#L413-L441

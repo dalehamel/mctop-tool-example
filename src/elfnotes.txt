@@ -1,0 +1,238 @@
+
+Displaying notes found in: .note.stapsdt
+  Owner                 Data size	Description
+  stapsdt              0x0000003a	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: conn__create
+    Location: 0x00000000000057d4, Base: 0x0000000000042a60, Semaphore: 0x00000000000497c4
+    Arguments: 8@-8(%rbp)
+  stapsdt              0x00000039	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: conn__allocate
+    Location: 0x0000000000005f73, Base: 0x0000000000042a60, Semaphore: 0x00000000000497c0
+    Arguments: -4@%eax
+  stapsdt              0x0000003b	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: conn__destroy
+    Location: 0x00000000000066f4, Base: 0x0000000000042a60, Semaphore: 0x00000000000497c6
+    Arguments: 8@-8(%rbp)
+  stapsdt              0x00000038	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: conn__release
+    Location: 0x0000000000006873, Base: 0x0000000000042a60, Semaphore: 0x00000000000497c2
+    Arguments: -4@%eax
+  stapsdt              0x0000004f	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: process__command__end
+    Location: 0x0000000000006c01, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e6
+    Arguments: -4@%edx 8@%rcx -4@%eax
+  stapsdt              0x00000058	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__add
+    Location: 0x000000000000794d, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ea
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+  stapsdt              0x0000005c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__replace
+    Location: 0x0000000000007994, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ee
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+  stapsdt              0x0000005b	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__append
+    Location: 0x00000000000079db, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f2
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+  stapsdt              0x0000005c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__prepend
+    Location: 0x0000000000007a22, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f0
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+  stapsdt              0x00000058	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__set
+    Location: 0x0000000000007a66, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ec
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+  stapsdt              0x00000058	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__cas
+    Location: 0x0000000000007a9d, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f6
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+  stapsdt              0x00000057	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__add
+    Location: 0x00000000000089b5, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ea
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-8(%rbp)
+  stapsdt              0x0000005b	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__replace
+    Location: 0x00000000000089fc, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ee
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-8(%rbp)
+  stapsdt              0x0000005a	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__append
+    Location: 0x0000000000008a43, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f2
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-8(%rbp)
+  stapsdt              0x0000005b	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__prepend
+    Location: 0x0000000000008a8a, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f0
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-8(%rbp)
+  stapsdt              0x00000057	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__set
+    Location: 0x0000000000008ace, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ec
+    Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-8(%rbp)
+  stapsdt              0x00000055	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__touch
+    Location: 0x0000000000008fbe, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f4
+    Arguments: -4@%edx 8@%rdi 1@%cl -4@%esi 8@%rax
+  stapsdt              0x00000053	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__get
+    Location: 0x0000000000009016, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e8
+    Arguments: -4@%edx 8@%rdi 1@%cl -4@%esi 8@%rax
+  stapsdt              0x0000005e	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__touch
+    Location: 0x0000000000009409, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f4
+    Arguments: -4@%eax 8@-32(%rbp) 8@-24(%rbp) -4@$-1 -4@$0
+  stapsdt              0x0000005c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__get
+    Location: 0x0000000000009413, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e8
+    Arguments: -4@%eax 8@-32(%rbp) 8@-24(%rbp) -4@$-1 -4@$0
+  stapsdt              0x00000051	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: process__command__start
+    Location: 0x000000000000aa72, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e4
+    Arguments: -4@%edx 8@%rcx -4@%eax
+  stapsdt              0x00000047	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__delete
+    Location: 0x000000000000b9aa, Base: 0x0000000000042a60, Semaphore: 0x00000000000497fc
+    Arguments: -4@%edx 8@%rcx 1@%al
+  stapsdt              0x00000053	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__get
+    Location: 0x0000000000011503, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e8
+    Arguments: -4@%edx 8@%rdi 1@%cl -4@%esi 8@%rax
+  stapsdt              0x0000005c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__get
+    Location: 0x000000000001196d, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e8
+    Arguments: -4@%eax 8@-40(%rbp) 8@-32(%rbp) -4@$-1 -4@$0
+  stapsdt              0x0000005c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__get
+    Location: 0x0000000000012c6e, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e8
+    Arguments: -4@%eax 8@-24(%rbp) 8@-16(%rbp) -4@$-1 -4@$0
+  stapsdt              0x00000047	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__delete
+    Location: 0x00000000000138ee, Base: 0x0000000000042a60, Semaphore: 0x00000000000497fc
+    Arguments: -4@%edx 8@%rcx 1@%al
+  stapsdt              0x0000004c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__incr
+    Location: 0x000000000001483b, Base: 0x0000000000042a60, Semaphore: 0x00000000000497f8
+    Arguments: -4@%edx 8@%rsi 1@%al 8@%rcx
+  stapsdt              0x0000004c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__decr
+    Location: 0x0000000000014898, Base: 0x0000000000042a60, Semaphore: 0x00000000000497fa
+    Arguments: -4@%edx 8@%rsi 1@%al 8@%rcx
+  stapsdt              0x00000047	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: command__delete
+    Location: 0x0000000000014edf, Base: 0x0000000000042a60, Semaphore: 0x00000000000497fc
+    Arguments: -4@%edx 8@%rcx 1@%al
+  stapsdt              0x00000051	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: process__command__start
+    Location: 0x0000000000015ce1, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e4
+    Arguments: -4@%edx 8@%rcx -4@%eax
+  stapsdt              0x00000051	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__slabclass__allocate__failed
+    Location: 0x000000000001fe91, Base: 0x0000000000042a60, Semaphore: 0x00000000000497d0
+    Arguments: 4@-36(%rbp)
+  stapsdt              0x00000051	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__slabclass__allocate__failed
+    Location: 0x000000000001fed2, Base: 0x0000000000042a60, Semaphore: 0x00000000000497d0
+    Arguments: 4@-36(%rbp)
+  stapsdt              0x00000049	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__slabclass__allocate
+    Location: 0x000000000001ff2c, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ce
+    Arguments: 4@-36(%rbp)
+  stapsdt              0x0000004c	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__allocate__failed
+    Location: 0x000000000001ff67, Base: 0x0000000000042a60, Semaphore: 0x00000000000497cc
+    Arguments: 8@-40(%rbp) -4@$0
+  stapsdt              0x0000005d	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__allocate
+    Location: 0x000000000002003c, Base: 0x0000000000042a60, Semaphore: 0x00000000000497ca
+    Arguments: 8@-40(%rbp) 4@-44(%rbp) 4@%eax 8@-24(%rbp)
+  stapsdt              0x00000052	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__allocate__failed
+    Location: 0x000000000002003f, Base: 0x0000000000042a60, Semaphore: 0x00000000000497cc
+    Arguments: 8@-40(%rbp) 4@-44(%rbp)
+  stapsdt              0x00000052	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: slabs__free
+    Location: 0x0000000000020234, Base: 0x0000000000042a60, Semaphore: 0x00000000000497d2
+    Arguments: 8@-32(%rbp) 4@-36(%rbp) 8@-24(%rbp)
+  stapsdt              0x00000042	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: item__link
+    Location: 0x00000000000237cc, Base: 0x0000000000042a60, Semaphore: 0x00000000000497da
+    Arguments: 8@%rcx 1@%dl -4@%eax
+  stapsdt              0x00000044	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: item__unlink
+    Location: 0x0000000000023927, Base: 0x0000000000042a60, Semaphore: 0x00000000000497dc
+    Arguments: 8@%rcx 1@%dl -4@%eax
+  stapsdt              0x00000044	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: item__unlink
+    Location: 0x0000000000023a62, Base: 0x0000000000042a60, Semaphore: 0x00000000000497dc
+    Arguments: 8@%rcx 1@%dl -4@%eax
+  stapsdt              0x00000044	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: item__remove
+    Location: 0x0000000000023b9a, Base: 0x0000000000042a60, Semaphore: 0x00000000000497de
+    Arguments: 8@%rcx 1@%dl -4@%eax
+  stapsdt              0x00000044	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: item__update
+    Location: 0x0000000000023c03, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e0
+    Arguments: 8@%rcx 1@%dl -4@%eax
+  stapsdt              0x0000005a	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: item__replace
+    Location: 0x0000000000023d80, Base: 0x0000000000042a60, Semaphore: 0x00000000000497e2
+    Arguments: 8@%rdi 1@%dl -4@%ecx 8@%r8 1@%sil -4@%eax
+  stapsdt              0x00000053	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: assoc__find
+    Location: 0x000000000002937d, Base: 0x0000000000042a60, Semaphore: 0x00000000000497d4
+    Arguments: 8@-40(%rbp) 8@-48(%rbp) -4@-24(%rbp)
+  stapsdt              0x0000003d	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: assoc__insert
+    Location: 0x00000000000296b6, Base: 0x0000000000042a60, Semaphore: 0x00000000000497d6
+    Arguments: 8@%rdx 1@%al
+  stapsdt              0x00000048	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: assoc__delete
+    Location: 0x00000000000296f7, Base: 0x0000000000042a60, Semaphore: 0x00000000000497d8
+    Arguments: 8@-24(%rbp) 8@-32(%rbp)
+  stapsdt              0x00000045	NT_STAPSDT (SystemTap probe descriptors)
+    Provider: memcached
+    Name: conn__dispatch
+    Location: 0x000000000002a9c9, Base: 0x0000000000042a60, Semaphore: 0x00000000000497c8
+    Arguments: -4@-52(%rbp) 8@%rax

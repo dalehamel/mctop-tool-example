@@ -1,0 +1,33 @@
+BEGIN
+{
+  printf("%-20s %10s %10s %10s\n", "MEMCACHED KEY", "CALLS", "OBJSIZE", "REQ/s");
+
+  @start = nsecs;
+}
+
+// NOTE - this presently omits incr, decr, and delete because they have a
+// different signature
+usdt::memcached:command__get,
+usdt::memcached:command__set,
+usdt::memcached:command__add,
+usdt::memcached:command__append,
+usdt::memcached:command__prepend,
+usdt::memcached:command__touch,
+usdt::memcached:command__cas,
+usdt::memcached:command__replace
+{
+  $key = str(arg1, arg2)
+  @calls[$key]++;
+
+  $objsize = arg3;
+  $interval = (nsecs - @start) / 1000000000;
+  $cps = @calls[$key] / $interval;
+  printf("%-20s %10d %10d %10d\n", $key, @calls[$key],
+                               $objsize, $cps)
+}
+
+END
+{
+  clear(@start);
+  clear(@calls);
+}

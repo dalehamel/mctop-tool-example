@@ -1,0 +1,4 @@
+uprobe:/proc/896719/root/usr/local/bin/memcached:process_command /pid == 896719/
+{
+  @command[str(arg1)]++
+}
