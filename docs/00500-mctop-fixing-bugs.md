@@ -1,5 +1,28 @@
 # Issues developing bcc tool
 
+In moving from the `bpftrace` prototype to a fully-fledged bcc-based python
+tool, inevitably I ran into some issues. `bpftrace` does a lot of smart stuff
+under the hood, and basically does the equivalent of writing these C-based
+segments of the eBPF probes for you, using LLVM IR (intermediate
+representation).
+
+In moving to writing the raw C to generate the eBPF code myself, I ran into a
+couple of hiccups as I hit rough edges that weren't as friendly as the
+faculties that `bpftrace` provides in its higher-level tracing language.
+
+Going through these here will, I hope, give some insight into the ways that I
+was able to find and squash bugs in order to develop a fully functioning tool,
+so that others can learn from these mistakes.
+
+## Debugging
+
+To start off, To be able to print data in a way that can be readily used in debugging
+scenarios, we can use the builtin `bpf_trace_printk` which is a printf-like
+interface. To read these values out of the kernel
+
+```
+sudo cat /sys/kernel/debug/tracing/trace_pipe
+```
 ## Being able to read the data
 
 Could read key, but not the data size - what?!
@@ -7,7 +30,12 @@ Could read key, but not the data size - what?!
 explain reading the elf notes, put a table for the systemtap page with the
 type descriptions.
 
-Show the code diffs, debugging this with printk and catting trace pipe
+```{.gnuassembler include=src/elfnotes.txt startLine=104 endLine=108}
+```
+
+```{.gnuassembler include=src/elfnotes.txt startLine=24 endLine=28}
+```
+
 
 ## Duplicate keys
 
@@ -138,8 +166,3 @@ https://github.com/memcached/memcached/blob/master/memcached_dtrace.d#L214
 
 
 
-# Debug
-
-```
-sudo cat /sys/kernel/debug/tracing/trace_pipe
-```

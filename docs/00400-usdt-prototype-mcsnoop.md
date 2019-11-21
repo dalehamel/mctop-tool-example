@@ -1,20 +1,20 @@
 # bpftrace script for mcsnoop
 
-With a basic test lab now set up, I could now look into how I might get cleaner
-data out of the other dtrace probes.
+With a basic test lab now set up to try out USDT probes on memcached, I could
+now look into how I might get cleaner data out of the other dtrace probes.
 
-Looking again at the dtrace file, I saw that all of the commands had dtrace
-probes defined
+From the dtrace file, I saw that all of the commands memcached supports had
+dtrace probes defined:
 
 ```{.c include=src/memcached/memcached_dtrace.d startLine=205 endLine=214}
 ```
 
-`command__set` probe negates the need to parse this, and all of the other
-commands have dtrace probes.
+This `command__set` probe negates the need to parse this the command string,
+and it looks like all of the other commands also have dtrace probes.
 
-In the memcached source, I could see where these probse were being
-invoked. Earlier when the dtrace header was defined, the macros that in the
-source here were used to add the dtrace probepoints to the source.
+In the memcached source, I could see where these probes were being invoked.
+Earlier when the dtrace header was defined, the macros that in the source here
+were used to add the dtrace probepoints to the source.
 
 ```{.c include=src/memcached/memcached.c startLine=1358 endLine=1386}
 ```
@@ -29,17 +29,24 @@ From this line in the original ruby mcop for instance:
 ```
 
 I was able to construct the corresponding header line that I would use later
-in trying to mimic it in bpftrace.
-
-I checked out some of Brendan Gregg's examples from his now book's repo, and
-came across #FIXME top, which I based my script on.
-
-I decided to just probe the `set` command to start with.
+in trying to mimic it in bpftrace. A `bpftrace` script that provided similar
+output to `mctop`, at least for the `SET` command, looks like this then:
 
 ```{.awk include=src/mcsnoop-orig.bt}
 ```
 
-Unfortunately at this point I hit the limit of what bpftrace could do for me.
+But this wasn't really a `top`-like tool, it just prints results as it gets
+data. To see how this migth be done, I checked out some of Brendan Gregg's
+examples from his now book's repo, and came across `slabratetop.bt`:
+
+```{.awk include=src/bpf-perf-tools-book/originals/Ch14_Kernel/slabratetop.bt startLine=16 endLine=35}
+```
+
+This showed how to build a top-like tool in bpftrace, but also the
+limitations of doing so. You can basically just print the map data out on a
+recurring interval.
+
+So, at this point I hit the limit of what bpftrace could do for me.
 It is great for analyzing map data, but not so great at producing interactive
 top-like UIs yet, as that involves some sophisticated post-processing of the
 map data. For this reason, a complete `mctop` tool is currently out of reach of

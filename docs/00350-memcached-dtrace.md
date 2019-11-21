@@ -77,21 +77,57 @@ MEMCACHED_PID=$(docker inspect --format '{{.State.Pid}}' memcached-dtrace)
 Now I can run `tplist` from bcc, or use bpftrace to list the USDT tracepoints:
 
 ```
-bpftrace -l 'usdt:*' -p ${MEMCACHED_PID}
+tplist -p ${MEMCACHED_PID}
 ```
 
-I can now send a test 'set' command to my memcached instance. I chose one based
-off the benchmarking tool `memtier`, which i'll use later. A simple invocation
-[@memcached-cheatsheet] based on standard shell tools is:
+Shows for me:
+```
+/usr/local/bin/memcached memcached:conn__create
+/usr/local/bin/memcached memcached:conn__allocate
+/usr/local/bin/memcached memcached:conn__destroy
+/usr/local/bin/memcached memcached:conn__release
+/usr/local/bin/memcached memcached:process__command__end
+/usr/local/bin/memcached memcached:command__add
+/usr/local/bin/memcached memcached:command__replace
+/usr/local/bin/memcached memcached:command__append
+/usr/local/bin/memcached memcached:command__prepend
+/usr/local/bin/memcached memcached:command__set
+/usr/local/bin/memcached memcached:command__cas
+/usr/local/bin/memcached memcached:command__touch
+/usr/local/bin/memcached memcached:command__get
+/usr/local/bin/memcached memcached:process__command__start
+/usr/local/bin/memcached memcached:command__delete
+/usr/local/bin/memcached memcached:command__incr
+/usr/local/bin/memcached memcached:command__decr
+/usr/local/bin/memcached memcached:slabs__slabclass__allocate__failed
+/usr/local/bin/memcached memcached:slabs__slabclass__allocate
+/usr/local/bin/memcached memcached:slabs__allocate__failed
+/usr/local/bin/memcached memcached:slabs__allocate
+/usr/local/bin/memcached memcached:slabs__free
+/usr/local/bin/memcached memcached:item__link
+/usr/local/bin/memcached memcached:item__unlink
+/usr/local/bin/memcached memcached:item__remove
+/usr/local/bin/memcached memcached:item__update
+/usr/local/bin/memcached memcached:item__replace
+/usr/local/bin/memcached memcached:assoc__find
+/usr/local/bin/memcached memcached:assoc__insert
+/usr/local/bin/memcached memcached:assoc__delete
+/usr/local/bin/memcached memcached:conn__dispatch
+```
+
+Meaning that I added probes successfully, and now can, try ta target them.
+
+To test this out, I can send a test 'set' command to my memcached instance.
+I chose one based off the benchmarking tool `memtier`, which i'll use later.
+A simple invocation [@memcached-cheatsheet] based on standard shell tools is:
 
 ```
 printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211
 ```
 
 Now that I have usdt support, I can rebuild my original uprobe example. Checking
-the dtrace file again, I see the signature for the `process__command` probe.
-
-It just so happened that the function my colleague Camilo selected was also a
+the dtrace file again, I see the signature for the `process__command` probe. It
+just so happened that the function my colleague Camilo selected was also a
 USDT probe point!
 
 ```{.c include=src/memcached/memcached_dtrace.d startLine=168 endLine=174}
@@ -103,3 +139,6 @@ Based on this, I built an initial translation of the uprobe tool to use USDT.
 ```{.awk include=src/mcsnoop-usdt.bt}
 ```
 
+But this tool is still very limited, and so I wanted to try and expand it
+further to provide more functionality, closer to being on-par with the original
+`mctop` tool.
