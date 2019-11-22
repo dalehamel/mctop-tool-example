@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Github pages really hates this broken link, and we don't
+# need it in our uploaded artifacts anyways, so we will just trash it manually
+rm -f src/bcc/tests/lua/spec
+
+# Remove .gitignore so that ignored output is published
+rm .gitignore
+
+# This script can be extended to toss away any other artifacts that prevent page builds
+# and aren't needed.

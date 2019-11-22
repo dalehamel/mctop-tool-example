@@ -18,4 +18,8 @@ doc/build:
 index.html:
 	ln -sf output/doc.html index.html
 
+.PHONY: quirks
+quirks:
+	scripts/tidy
+
 all: doc/build index.html

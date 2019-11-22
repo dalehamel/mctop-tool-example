@@ -4,6 +4,7 @@ services:
 - docker
 script:
 - make
+- make quirks
 - rm .gitignore
 deploy:
   provider: pages
