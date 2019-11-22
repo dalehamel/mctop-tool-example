@@ -1,15 +1,14 @@
 # Testing mctop tool
 
-To show that `mctop` can handle heavy load, I decided to try hooking it up to
-the same load testing tool we use to stress test our memcached and redis
-configurations.
+Initial basic testing of the `mctop` and `mcsnoop.bt` tools were made easier
+by `printf` to write commands to test tracing. At these lower frequencies
+though, errors such as were encountered are not immediately obvious. It wasn't
+until `memtier_benchmark` was first used to generate load was it completely
+clear what the cause of the garbled key reads were.
 
-If you want to try it out for yourself, you can pull down the memcached test
-image used here with:
-
-// FIXME
-
-Or build it yourself from the Dockerfile. // FIXME bib ref to dockerfile in this repo
+Now that `mctop` has been cleaned up, and keys are stored properly this tool
+can be used to demonstrate how `mctop` works, and show that it can keep up with
+tracing requests to memcached.
 
 ## memtier benchmark
 

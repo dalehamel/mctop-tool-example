@@ -67,9 +67,18 @@ of `mckeydump` tool, saving the data that was traced in a session:
 ```{.python include=src/bcc/tools/mctop.py  startLine=196 endLine=206}
 ```
 
-## Finishing touches
+## Finishing touches and final tool
 
 Since the goal of the tool is to share it, especially so fans of the original
 `mctop` or `memkeys` command could have access a light-weight eBPF option, it
 is definitely a goal to share this tool and get it into good enough shape for 
 it to pass a pull request review[@bcc-contributing-tools].
+
+For this reason, this report was prepared to supplement the material around the
+`mctop` tool included in the pull request.
+
+This script is submitted in its entirety:
+
+```{.python include=src/bcc/tools/mctop.py}
+```
+
