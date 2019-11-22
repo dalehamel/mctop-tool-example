@@ -5,7 +5,6 @@ services:
 script:
 - make
 - make quirks
-- rm .gitignore
 deploy:
   provider: pages
   skip_cleanup: true
