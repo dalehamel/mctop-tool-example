@@ -15,7 +15,7 @@ tracing requests to memcached.
 The `memtier_benchmark` tool can be used to generate load to the test memcached
 instance that I built earlier, with dtrace probes enabled.
 
-Rather than having to print to netcat, this allows for rappidly firing off a
+Rather than having to print to netcat, this allows for rapidly firing off a
 large number of commands, showing that the tool is behaving as expected. This
 also gives a lot more data, for more interesting exploration of the tool,
 allowing for sorting on real data, and testing out dumping real data to a JSON

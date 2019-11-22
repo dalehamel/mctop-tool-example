@@ -18,7 +18,7 @@ to find useful data sources.
 
 In particular for this issue, bpftrace has the ability to target any ELF binary
 with uprobes and read method calls and returns for an application like
-memcached. This was the first entrypoint into investigating the memcached key
+memcached. This was the first entry-point into investigating the memcached key
 access patterns.
 
 ## memcached sources
@@ -97,7 +97,7 @@ use of dtrace.
     handle to access the process's mount namespace, and read the exact instance
     of the memcached binary we want to probe.
 
-[^2]: The initial prototype of the uprobe tool targetted the memcached binary
+[^2]: The initial prototype of the uprobe tool targeted the memcached binary
     directly, as while we were using a recent version of bpftrace (0.9.2), which
     ships with Ubuntu Eoan, it was linked with libbcc 0.8.0, which didn't have
     all of the USDT functionality and namespace support to read containerized

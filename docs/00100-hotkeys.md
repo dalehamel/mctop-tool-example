@@ -17,7 +17,7 @@ informative blog post [mctop-blog-post ]on the topic that originally drove them
 to develop the tool. This concept was developed further by tumbler in a similar
 tool, `memkeys` [@tumblr-memkeys].
 
-This is a screen capture of the redeveloped mctop built on eBPF and USDT
+This is a screen capture of the redeveloped `mctop` built on eBPF and USDT
 tracing:
 
 ![](./img/mctop.gif)

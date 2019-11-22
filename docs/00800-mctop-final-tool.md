@@ -22,7 +22,7 @@ source code of `mctop` to see how it was building its UI and accepting input.
 I was able to construct the corresponding header line that I would use later
 in trying to mimic it in bpftrace. 
 
-From this line in the original ruby mcop for instance:
+From this line in the original ruby `mctop` for instance:
 
 ```{.ruby include=src/mctop/lib/ui.rb startLine=128 endLine=134}
 ```

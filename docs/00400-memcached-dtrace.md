@@ -133,7 +133,7 @@ Shows for me:
 /usr/local/bin/memcached memcached:conn__dispatch
 ```
 
-Meaning that I added probes successfully, and now can, try ta target them.
+Meaning that I added probes successfully, and now can, try to target them.
 
 To test this out, I can send a test 'set' command to my memcached instance.
 I chose one based off the benchmarking tool `memtier`, which i'll use later.
@@ -143,7 +143,7 @@ A simple invocation [@memcached-cheatsheet] based on standard shell tools is:
 printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211
 ```
 
-Now that I have usdt support, I can rebuild my original uprobe example. Checking
+Now that I have USDT support, I can rebuild my original uprobe example. Checking
 the dtrace file again, I see the signature for the `process__command` probe. It
 just so happened that the function my colleague Camilo [@camilo-github]
 selected was also a USDT probe point!

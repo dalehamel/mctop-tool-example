@@ -33,7 +33,7 @@ read USDT argument data, and how to set up a map to store structured data:
 ```
 ### ucalls.py
 
-Another great example that I spent a lot of time disecting was ucalls.py,
+Another great example that I spent a lot of time dissecting was ucalls.py,
 which is the script that powers `rubycalls` and other USDT tools in bcc. In
 does a little bit of meta programming, so that it can share the same code
 across languages. For instance, for ruby it sets the probe points here:
@@ -48,7 +48,7 @@ Then later, in the C code, it uses these to replace `READ_CLASS` and
 ```{.c include=src/bcc/tools/lib/ucalls.py startLine=138 endLine=160}
 ```
 
-There are several other tools in this suite, targetting various other language
+There are several other tools in this suite, targeting various other language
 runtimes.
 
 ### slabratetop.py
@@ -62,5 +62,5 @@ inspiration from its main control loop:
 ```
 
 Which I blended later with the `select` approach used by the ruby `mctop` in
-order to receive keboard input, which I'll be covering in more detail later.
+order to receive keyboard input, which I'll be covering in more detail later.
 

@@ -30,7 +30,7 @@ sudo cat /sys/kernel/debug/tracing/trace_pipe
 
 Could read key, but not the data size - what?!
 
-explain reading the elf notes, put a table for the systemtap page with the
+Explain reading the elf notes, put a table for the systemtap page with the
 type descriptions.
 
 ```{.gnuassembler include=src/elfnotes.txt startLine=104 endLine=108}
@@ -109,8 +109,8 @@ the right layer. Thanks to Bas Smit [@fbs] who pointed out to me that this was
 actually a solved problem in bpftrace, I had some renewed hope that there
 **must** be a way to get the eBPF verifier to accept a non-const length read.
 
-Iknowing that this works in bpftraceI thought it would make sense to take a
-look at how this is handled. Looking at the bpftrace code generation:
+Knowing that this works in bpftrace, it would make sense to take a look at how
+this is handled. This is the relevant LLVM IR generation from `bpftrace`:
 
 ```{.cpp include=src/bpftrace/src/ast/codegen_llvm.cpp startLine=413 endLine=441}
 ```
