@@ -8,14 +8,15 @@ the original original libpcap-based `mctop` tool.
 
 ## mctop
 
-The `mctop` tool was originally developed by etsy [@etsy-mctop], who wrote an
-informative blog post [mctop-blog-post ]on the topic that originally drove them
-to develop the tool. This concept was developed further by tumbler in a similar
-tool, `memkeys` [@tumblr-memkeys].
+The `mctop` tool was originally developed by etsy [@etsy-mctop], and the author
+ wrote an informative blog post [@mctop-blog-post] on the topic that originally
+the motivations that dove them to develop the tool. This concept was developed
+further by tumbler in a similar tool, `memkeys` [@tumblr-memkeys].
 
 These tools both produced a top-like interface focussing on memcached key
-access, with primitive abilities to sort each column. Detecting hot keys can
-inform application decisions on how to utilize caching patterns under load.
+access, with basic abilities to sort the data by column. Awareness of hot keys
+can inform application decisions of how best to to utilize caching patterns
+under heavy load.
 
 This is a screen capture of the redeveloped `mctop` built on eBPF and USDT
 tracing:
