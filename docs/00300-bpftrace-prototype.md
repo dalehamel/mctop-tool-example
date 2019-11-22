@@ -1,34 +1,43 @@
-# bpftrace uprobe memcached
+# Probing memcached with bpftrace uprobes
 
 One of the reasons we were able to deploy bpftrace so quickly to solve this
-issue was because we have distributed bpf tools in production via a custom toolbox
-image for about a year now, and have `bpftrace` deployed to production, as well
-as using `kubectl-trace` by including it with our standard development tools.
-This makes it easy for developers to probe their applications, and the system
-faculties that support them.
+issue was because we have distributed bpf tools in production via a custom
+toolbox image for about a year now, and have had `bpftrace` deployed to
+production along with the standard bcc tools.
 
-These tools, along with the bcc suite of tools, allow for easier access to
-otherwise complicated things, like kernel kprobes and uprobes. `bpftrace`, in
-particular, allows for simple and concise probe definitions, and is great for
-prototyping more complex tools, and poking around to find useful data sources.
+Our development tooling also installs kubectl-trace onto the laptop of anyone 
+with production access. This makes it easy for developers to probe their
+applications, and the system faculties that support them. Developing this sort
+of tool library allows for easily applying purpose-built analysis tools to dig
+in and investigate production issues.
+
+This brings easier access to otherwise complicated things, like kernel kprobes
+and uprobes. `bpftrace`, in particular, allows for simple and concise probe
+definitions, and is great for prototyping more complex tools, and poking around
+to find useful data sources.
+
+In particular for this issue, bpftrace has the ability to target any ELF binary
+with uprobes and read method calls and returns for an application like
+memcached. This was the first entrypoint into investigating the memcached key
+access patterns.
 
 ## memcached sources
 
 My colleague Camilo Lopez [@camilo-github] came up with the idea to attach a
-uprobe to the `process__command` funtion in memcached. In the memcached source
+uprobe to the `process__command` function in memcached. In the memcached source
 code, we can its signature in `memcached.c`:
 
 ```{.c include=src/memcached/memcached.c startLine=5756 endLine=5756}
 ```
 
-This shows us that the second argument (`arg1` if indexd from 0) is the command
+This shows us that the second argument (`arg1` if indexed from 0) is the command
 string, which contains the key.
 
 Now that we know the signature, we can verify that we  can find this symbol in
 the memcached binary:
 
 ```
-objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command
+objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command -B2 -A2
 
 ```
 [^1]
@@ -44,7 +53,8 @@ Which shows us that it is indeed a symbol we can access:
 ...
 ```
 
-Now we know that we can target this symbol with `bpftrace`.
+This is how `bpftrace` will target the probe, and seeing this is all we needed
+to see to know we could try it.
 
 ## uprobe prototype
 
@@ -58,6 +68,7 @@ easily be done as a `bpftrace` one-liner:
 ```awk
 bpftrace -e 'uprobe:/proc/896719/root/usr/local/bin/memcached:process_command { printf("%s\n", str(arg1)) }'
 ```
+[^6]
 
 Then, if I issue a test command, I can  see the output!:
 
@@ -91,3 +102,6 @@ use of dtrace.
     ships with Ubuntu Eoan, it was linked with libbcc 0.8.0, which didn't have
     all of the USDT functionality and namespace support to read containerized
     processes correctly. For this reason
+[^6]: This is not the ideal syntax and is a regression, container tracing is a
+    bit working with USDT probes, as are uprobes. Specifying the full path from
+    the /proc hierarchy seems to work well enough though.

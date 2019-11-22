@@ -25,7 +25,7 @@ of workers also allows for all workers within a Shopify Pod to benefit.
 ## War Games
 
 To make sure that we are testing our systems at scale, platform engineering
-teams at shopify set up a "Red team / Blue team" exercise, where the "Red" team
+teams at Shopify set up a "Red team / Blue team" exercise, where the "Red" team
 tries to devise pathological scenarios using our internal load-testing tool
 used to simulate flash-sale application flows against the platform.
 
@@ -75,17 +75,17 @@ enabled:
 @command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_M]: 6779
 ```
 
-Having detected these keys were hot, we looked to the code paths that were
-using them.
+Having gained a quick view into what were especially hot, we could direct our
+attention to investigating the codepaths that were interacting with them.
 
 ## Hot key mitigation
 
-Since these keys do not change very frequently, we introduced an in-memory
-cache at the application layer inside of rails itself. This only busts cache
-once a minute, so it is hit much less frequently in the memcached.
+Since these keys do not change very frequently, we decided to introduce an
+in-memory cache at the application layer inside of rails itself. With a TTL of
+a fully minute, it will hit memcached much less frequently.
 
-The change was simple, but results were pronounced. Without the cache we see
-large spikes on both memcached, and mcrouter (the proxy we use to access it):
+The change was simple, but results were pronounced. Without the in-memory cache
+we see large spikes on both memcached, and mcrouter (the proxy we use to access it):
 
 ## Performance Results
 

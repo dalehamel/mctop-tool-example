@@ -1,9 +1,6 @@
 [submodule "src/memcached"]
 	path = src/memcached
 	url = https://github.com/memcached/memcached.git
-[submodule "src/bcc"]
-	path = src/bcc
-	url = https://github.com/dalehamel/bcc.git
 [submodule "src/bpftrace"]
 	path = src/bpftrace
 	url = https://github.com/iovisor/bpftrace.git
@@ -16,3 +13,6 @@
 [submodule "src/linux"]
 	path = src/linux
 	url = https://github.com/torvalds/linux
+[submodule "bccmctop"]
+	path = src/bcc
+	url = https://github.com/dalehamel/bcc.git

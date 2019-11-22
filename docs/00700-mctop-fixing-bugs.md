@@ -16,14 +16,17 @@ so that others can learn from these mistakes.
 
 ## Debugging
 
-To start off, To be able to print data in a way that can be readily used in debugging
-scenarios, we can use the builtin `bpf_trace_printk` which is a printf-like
-interface. To read these values out of the kernel
+To start off, To be able to print data in a way that can be readily used in
+debugging scenarios, we can use the builtin `bpf_trace_printk` which is a
+printf-like interface. To read these values out of the kernel:
 
 ```
 sudo cat /sys/kernel/debug/tracing/trace_pipe
 ```
+
 ## Being able to read the data
+
+// FIXME this needs to be filled in way more
 
 Could read key, but not the data size - what?!
 

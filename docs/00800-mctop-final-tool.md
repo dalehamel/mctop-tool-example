@@ -16,9 +16,31 @@ input. I based most of this on the original `mctop` in ruby.
 I decided to add a couple of fields, as I was capturing more data than the
 orignal, and I changed how tray bar of the tool works entirely.
 
+I analyzed the original screenshot and browsed through the
+source code of mctop to see how it was building its UI and accepting input.
+
+I was able to construct the corresponding header line that I would use later
+in trying to mimic it in bpftrace. 
+
+From this line in the original ruby mcop for instance:
+
+```{.ruby include=src/mctop/lib/ui.rb startLine=128 endLine=134}
+```
+
 ### Key entry
 
 // FIXME show original mctop ruby select usage
+
+
+The usage of select wase based on the original ruby:
+
+```{.ruby include=src/mctop/lib/ui.rb startLine=152 endLine=169}
+```
+
+```{.ruby include=src/mctop/bin/mctop startLine=36 endLine=62}
+```
+
+
 
 ### Sorting
 
