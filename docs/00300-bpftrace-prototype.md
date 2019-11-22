@@ -11,10 +11,10 @@ applications, and the system faculties that support them. Developing this sort
 of tool library allows for easily applying purpose-built analysis tools to dig
 in and investigate production issues.
 
-This brings easier access to otherwise complicated things, like kernel kprobes
-and uprobes. `bpftrace`, in particular, allows for simple and concise probe
-definitions, and is great for prototyping more complex tools, and poking around
-to find useful data sources.
+This brings into reach tools that would otherwise be too scare or inaccessible,
+like kernel kprobes and uprobes. `bpftrace`, in particular, allows for simple
+and concise probe definitions, and is great for prototyping more complex tools,
+and poking around to find useful data sources.
 
 In particular for this issue, bpftrace has the ability to target any ELF binary
 with uprobes and read method calls and returns for an application like
