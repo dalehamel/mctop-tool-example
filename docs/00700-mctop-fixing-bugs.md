@@ -124,20 +124,23 @@ iovisor/bcc#1260 [@bcc-variable-read-issue-comment].
 
 That didn't work unfortunately, it threw this eBPF verifier error:
 
-// FIXME show error
+```{.gnuassembler include=src/ebpf-error.txt startLine=136 endLine=142}
+```
 
-digging into the linux kernel, I could see that this was the code being called:
+
+The corresponding code in the linux eBPF verifier shows where this is emitted
+from:
 
 ```{.c include=src/linux/kernel/bpf/verifier.c startLine=2933 endLine=2954}
 ```
 
-So without being an expert in the eBPF verifier or the linux kernel, I figured
-that this further re-enforced that the issue was because the length I was
-providing for the read was non-const.
+So without being an expert in the eBPF verifier or the linux kernel, this
+result re-enforced that the issue was because the length being provided for
+the probe read was non-const.
 
-There was another comment on that bcc which referred to [@bpf-variable-memory]
-a mechanism which could be used to demonstrate safety for a non-const length
-value to the verifier. In the commit message, this C snippet is used:
+Another comment[@bpf-variable-memory] on iovisor/bcc#1260, provided a hint
+towards  a mechanism which could be used to demonstrate safety for a non-const
+length value to the verifier. In the commit message, this C snippet is used:
 
 ```c
 int len;
@@ -152,13 +155,23 @@ some_helper(..., buf, len & (BUFSIZE - 1));
 ```
 
 That showed that a bitwise & with a const value was enough to convince the
-verifier that this was safe! Of course, this only really work for sure if the
-const value as a hex mask with all bits activated, like `0xFF`
+verifier that this was safe! Of course, this only really be easy if the const
+value as a hex mask with all bits activated, like `0xFF`
 
 In the memcached source, we can see that `KEY_MAX_LENGTH` is `250`. This is
-close enough to 255 that a mask of `0xFF` should work fine:
+close enough to 255 that a mask of `0xFF` would be able to mask:
 
 ```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
 ```
 
-// FIXME show updated probe code
+Technically, 
+
+This lead to the final probe code looking like:
+
+```{.c include=src/bcc/tools/mctop.py  startLine=130 endLine=130}
+```
+
+The eBPF verifier had no problem with this
+
+// FIXME show the change in eBPF generated code and explain it.
+

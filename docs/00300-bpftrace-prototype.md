@@ -1,7 +1,7 @@
 # Probing memcached with bpftrace uprobes
 
 One of the reasons we were able to deploy bpftrace so quickly to solve this
-issue was because we have distributed bpf tools in production via a custom
+issue was because we have distributed eBPF tools in production via a custom
 toolbox image for about a year now, and have had `bpftrace` deployed to
 production along with the standard bcc tools.
 

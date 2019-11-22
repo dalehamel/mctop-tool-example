@@ -7,15 +7,15 @@ These tools both produced a top-like interface focussing on memcached key
 access, with primitive abilities to sort each column. Detecting hot keys can
 inform application decisions on how to utilize caching patterns under load.
 
-An investigation into a cache hotspotting lead to a eBPF-based redevelopment of
+An investigation into a cache hot-spotting lead to a eBPF-based redevelopment of
 the original original libpcap-based `mctop` tool.
 
 ## mctop
 
-The mctop tool was originally developed by etsy [@etsy-mctop], who wrote an
+The `mctop` tool was originally developed by etsy [@etsy-mctop], who wrote an
 informative blog post [mctop-blog-post ]on the topic that originally drove them
 to develop the tool. This concept was developed further by tumbler in a similar
-tool, called "memkeys" [@tumblr-memkeys].
+tool, `memkeys` [@tumblr-memkeys].
 
 This is a screen capture of the redeveloped mctop built on eBPF and USDT
 tracing:

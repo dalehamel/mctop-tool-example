@@ -27,7 +27,7 @@ output to `mctop`, at least for the `SET` command, looks like this then:
 ```
 
 But this wasn't really a `top`-like tool, it just prints results as it gets
-data. To see how this migth be done, I checked out some of Brendan Gregg's
+data. To see how this might be done, I checked out some of Brendan Gregg's
 examples from his now book's repo, and came across `slabratetop.bt`:
 
 ```{.awk include=src/bpf-perf-tools-book/originals/Ch14_Kernel/slabratetop.bt startLine=16 endLine=35}
@@ -45,7 +45,7 @@ bpftrace, so I set my eyes on a bcc tool to do the same.
 
 Ultimately, the most complete working version of this bpftrace prototype is
 something I'd rather call `mcsnoop`, as it snoops memcached key access using
-usdt probes.
+USDT probes.
 
 This is the current most working version, and solves the problem I would later
 have in my BCC version of treating `void *` byte buffers properly, which I'll

@@ -53,7 +53,7 @@ production memcached instance we were exercising in our Red/Blue exercise.
 
 ### Hot key detection with bpftrace
 
-bpftrace to probe the memcached containers/processes in question.
+`bpftrace` to probe the memcached containers/processes in question.
 
 For one cache we found one extremely hot key using our first uprobe-based
 prototype[^3]:
@@ -89,7 +89,7 @@ we see large spikes on both memcached, and mcrouter (the proxy we use to access 
 
 ## Performance Results
 
-During these hotspotting events, we could see the effect without the cache:
+During these hot-spotting events, we could see the effect without the cache:
 
 ![](img/without-cache.png)
 
