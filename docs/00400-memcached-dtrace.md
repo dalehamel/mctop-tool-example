@@ -55,7 +55,7 @@ checking for dtrace... /usr/bin/dtrace
 ```
 
 Later on it generates a header `memcached_dtrace.h`, which is conditionally
-included when dtrace probes are enabled:
+included when dtrace probes are enabled: [^9]
 
 ```bash
 /usr/bin/dtrace -h -s memcached_dtrace.d
@@ -69,13 +69,6 @@ source code of memcached, for instance:
 
 
 ```{.c include=src/memcached_dtrace.h startLine=93 endLine=95}
-```
-
-Towards the end of the build process, the shell stub is invoked again to
-process the object files: [^9]
-
-```bash
-/usr/bin/dtrace  -G -o memcached_debug_dtrace.o -s ./memcached_dtrace.d memcached_debug-memcached.o memcached_debug-hash.o memcached_debug-jenkins_hash.o memcached_debug-murmur3_hash.o memcached_debug-slabs.o memcached_debug-items.o memcached_debug-assoc.o memcached_debug-thread.o memcached_debug-daemon.o memcached_debug-stats.o memcached_debug-util.o memcached_debug-bipbuffer.o memcached_debug-logger.o memcached_debug-crawler.o memcached_debug-itoa_ljust.o memcached_debug-slab_automove.o memcached_debug-authfile.o memcached_debug-restart.o memcached_debug-cache.o     memcached_debug-sasl_defs.o memcached_debug-extstore.o memcached_debug-crc32c.o memcached_debug-storage.o memcached_debug-slab_automove_extstore.o
 ```
 
 So it seems like the dtrace support has been built into memcached. Now that the
