@@ -27,8 +27,9 @@ The Dockerfile [@dockerfile] that used was based on a production configuration
 which has been simplified for this analysis. The relevant addition to add
 dtrace probes was this snippet:
 
-```{.c include=src/Dockerfile startLine=9 endLine=14}
+```{.bash include=src/docker/Dockerfile startLine=9 endLine=14}
 ```
+
 Though the package is being pulled from ubuntu, all we need is a few files.
 This package just installs the `sys/sdt.h` header, and a stub command of
 `dtrace` that can be used to convert a dtrace file into a generated header,
@@ -39,7 +40,7 @@ the docker image at standard paths.
 Then on the configure line for memcached, just adding `--enable-dtrace` was
 sufficient:
 
-```{.c include=src/Dockerfile startLine=54 endLine=60}
+```{.bash include=src/docker/Dockerfile startLine=54 endLine=60}
 ```
 
 Then the image is built with `Docker build . -t memcached-dtrace` in this
@@ -63,8 +64,15 @@ sed -e 's,void \*,const void \*,g' memcached_dtrace.h | \
 mv mmc_dtrace.tmp memcached_dtrace.h
 ```
 
+This generated header defines the macros which are actually called in the
+source code of memcached, for instance:
+
+
+```{.c include=src/memcached_dtrace.h startLine=93 endLine=95}
+```
+
 Towards the end of the build process, the shell stub is invoked again to
-process the object files:
+process the object files: [^9]
 
 ```bash
 /usr/bin/dtrace  -G -o memcached_debug_dtrace.o -s ./memcached_dtrace.d memcached_debug-memcached.o memcached_debug-hash.o memcached_debug-jenkins_hash.o memcached_debug-murmur3_hash.o memcached_debug-slabs.o memcached_debug-items.o memcached_debug-assoc.o memcached_debug-thread.o memcached_debug-daemon.o memcached_debug-stats.o memcached_debug-util.o memcached_debug-bipbuffer.o memcached_debug-logger.o memcached_debug-crawler.o memcached_debug-itoa_ljust.o memcached_debug-slab_automove.o memcached_debug-authfile.o memcached_debug-restart.o memcached_debug-cache.o     memcached_debug-sasl_defs.o memcached_debug-extstore.o memcached_debug-crc32c.o memcached_debug-storage.o memcached_debug-slab_automove_extstore.o
@@ -76,7 +84,13 @@ To start a test instance the docker commands to bind to localhost on the
 standard memcached port are:
 
 ```
-docker run -p 11211:11211 memcached-dtrace
+docker run --name memcached-dtrace -p 11211:11211 memcached-dtrace
+```
+
+Or, alternatively, use an image already built:
+
+```
+docker run --name memcached-dtrace -p 11211:11211 quay.io/dalehamel/memcached-dtrace:latest
 ```
 
 To probe it, we'll need to get the pid of memcached:
@@ -155,4 +169,6 @@ further to provide more functionality, closer to being on-par with the original
 `mctop` tool.
 
 [^8]: there is actually a bug right now where this isn't working, this will be
-fixed in a future bpftrace / bcc release.
+      fixed in a future bpftrace / bcc release.
+[^9]: on a production instance, I had to further modify the dtrace setup in
+      order to disable semaphores, see https://github.com/iovisor/bcc/issues/2230

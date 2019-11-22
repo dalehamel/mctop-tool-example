@@ -9,9 +9,11 @@ ENV MEMCACHED_SHA1 14e6a02e743838696fcb620edf6a2fd7e60cabec
 # Get dtrace dependencies for alpine in a kinda hacky way
 RUN mkdir /build && cd /build && wget http://launchpadlibrarian.net/251391227/systemtap-sdt-dev_2.9-2ubuntu2_amd64.deb && \
     ar x systemtap-sdt-dev_2.9-2ubuntu2_amd64.deb && \
-    tar -xpf data.tar.xz && mv usr/bin/dtrace /usr/bin/dtrace && \
+    tar -xpf data.tar.xz && \
     mkdir -p /usr/include/sys && \
     mv usr/include/x86_64-linux-gnu/sys/* /usr/include/sys && rm -rf /build
+
+ADD dtrace /usr/bin/dtrace
 
 RUN set -x \
         \
@@ -48,6 +50,7 @@ RUN set -x \
                         *) echo '--enable-extstore' ;; \
                 esac \
         )" \
+        && sed -i 's/dtrace_instrument_obj=yes/dtrace_instrument_obj=no/g' configure \
         && ./configure \
         CFLAGS="-ggdb3" \
         CXXFLAGS="-ggdb3" \
@@ -57,9 +60,8 @@ RUN set -x \
                 --enable-sasl-pwdb \
                 --enable-dtrace \
                 $enableExtstore \
+        && make memcached_dtrace.h && cat memcached_dtrace.h \
         && make -j "$(nproc)" \
-        \
-    && make test \
         && make install \
         && memcached -V
 

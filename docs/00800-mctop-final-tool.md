@@ -37,7 +37,7 @@ The usage of select was based on the original Buby:
 In Python, without pulling in dependencies, the `termios` library  along with
 `select` can be used to recreate the experience of using the original `mctop`:
 
-```{.python include:src/bcc/tools/mctop.py  startLine=166 endLine=171}
+```{.python include=src/bcc/tools/mctop.py  startLine=166 endLine=171}
 ```
 
 And just as Ruby had a switch on the different inputs:

@@ -83,4 +83,4 @@ references:
   URL:  https://xkcd.com/356/
 - id: dockerfile
   title: Dockerfile for memcached with dtrace
-  URL: https://github.com/dalehamel/mctop-tool-example/blob/master/src/Dockerfile
+  URL: https://github.com/dalehamel/mctop-tool-example/blob/master/src/docker/Dockerfile
