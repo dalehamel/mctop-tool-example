@@ -138,8 +138,8 @@ printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211
 
 Now that I have usdt support, I can rebuild my original uprobe example. Checking
 the dtrace file again, I see the signature for the `process__command` probe. It
-just so happened that the function my colleague Camilo [@camilo] selected was
-also a USDT probe point!
+just so happened that the function my colleague Camilo [@camilo-github]
+selected was also a USDT probe point!
 
 ```{.c include=src/memcached/memcached_dtrace.d startLine=168 endLine=174}
 ```
