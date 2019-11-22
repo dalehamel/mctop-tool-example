@@ -29,32 +29,46 @@ From this line in the original ruby mcop for instance:
 
 ### Key entry
 
-// FIXME show original mctop ruby select usage
-
-
 The usage of select wase based on the original ruby:
 
 ```{.ruby include=src/mctop/lib/ui.rb startLine=152 endLine=169}
 ```
 
+In Python, without pulling in dependencies using termios along with select
+helps to recreate the experience of using the original mctop:
+
+```{.python include:src/bcc/tools/mctop.py  startLine=166 endLine=171}
+```
+
+And just ass ruby had a switch on the different inputs:
+
 ```{.ruby include=src/mctop/bin/mctop startLine=36 endLine=62}
 ```
 
+So to was this almost directly ported to Python:
 
-
+```{.python include:src/bcc/tools/mctop.py  startLine=172 endLine=194}
+```
 ### Sorting
 
-// Show the sorting code
+To sort the data, a lambda was defined for each sort mode:
+
+```{.python include:src/bcc/tools/mctop.py  startLine=144 endLine=163}
+```
 
 ### Dumping data
 
-// Dumping the data code, and use-case
+Since it would probably be usefull to be able to analyze the collected data,
+the python mapping of the original eBPF map can be saved to a JSON file for
+analysis when the map is cleared. This also allows for `mctop` to act as a sort
+of `mckeydump` tool, saving the data that was traced in a session:
+
+```{.python include:src/bcc/tools/mctop.py  startLine=196 endLine=206}
+```
 
 ## Finishing touches
 
-Since my goal is to share this tool, especially so fans of the original `mctop`
-or `memkeys` command could have access to it, I wanted it to be in good enough
-shape to pass a pull request review. There are strict guidelines for the bcc
-repo, so I set to work on them. [@bcc-contributing-tools]
-
-This entailed writing the manpage and sample usage.
+Since the goal of the tool is to share it, especially so fans of the original
+`mctop` or `memkeys` command could have access a light-weight eBPF option, it
+is definitely a goal to share this tool and get it into good enough shape for 
+it to pass a pull request review[@bcc-contributing-tools].
