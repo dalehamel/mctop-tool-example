@@ -10,7 +10,7 @@ Explain bit by bit what it is doing
 
 FIXME link to reference guide in bibliography
 
-```{.c include=src/bcc/docs/reference_guide.md startLine=234 endLine=241}
+```{.c include=src/bcc/docs/reference_guide.md startLine=235 endLine=242}
 ```
 
 ## Examining some real tools
@@ -38,14 +38,14 @@ which is the script that powers `rubycalls` and other USDT tools in bcc. In
 does a little bit of meta programming, so that it can share the same code
 across languages. For instance, for ruby it sets the probe points here:
 
-```{.python include=src/bcc/tools/lib/ucalls.py startLine=77 endLine=82}
+```{.python include=src/bcc/tools/lib/ucalls.py startLine=91 endLine=96}
 ```
 
 Then later, in the C code, it uses these to replace `READ_CLASS` and
 `READ_METHOD` when it is building out the probe function:
 
 
-```{.c include=src/bcc/tools/lib/ucalls.py startLine=138 endLine=160}
+```{.c include=src/bcc/tools/lib/ucalls.py startLine=151 endLine=163}
 ```
 
 There are several other tools in this suite, targeting various other language
@@ -63,4 +63,3 @@ inspiration from its main control loop:
 
 Which I blended later with the `select` approach used by the ruby `mctop` in
 order to receive keyboard input, which I'll be covering in more detail later.
-

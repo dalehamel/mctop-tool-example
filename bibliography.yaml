@@ -84,3 +84,21 @@ references:
 - id: dockerfile
   title: Dockerfile for memcached with dtrace
   URL: https://github.com/dalehamel/mctop-tool-example/blob/master/src/docker/Dockerfile
+- id: stap-wiki-ust
+  title: UserSpaceProbeImplementation - Systemtap Wiki
+  author:
+  - given: Mark
+    family: Mark Wielaard
+  - given: Frank
+    family: Eigler
+  URL: https://sourceware.org/systemtap/wiki/UserSpaceProbeImplementation
+- id: usdt-report-doc
+  title: USDT Report Doc
+  author:
+  - given: Dale
+    family: Hames
+  URL: https://blog.srvthe.net/usdt-report-doc/
+- id: dormando
+  title: Dormando's Home Page
+  author: Dormando
+  URL: http://www.dormando.me/
