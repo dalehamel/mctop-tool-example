@@ -2,7 +2,7 @@
 
 # Github pages really hates this broken link, and we don't
 # need it in our uploaded artifacts anyways, so we will just trash it manually
-rm -f src/bcc/tests/lua/spec
+find src -type l | grep tests/lua/spec | xargs rm -f
 
 # Remove .gitignore so that ignored output is published
 rm .gitignore
