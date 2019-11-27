@@ -13,20 +13,15 @@
 [submodule "src/linux"]
 	path = src/linux
 	url = https://github.com/torvalds/linux
-	shallow = true
 [submodule "bccmctop"]
 	path = src/bcc
 	url = https://github.com/dalehamel/bcc.git
-	shallow = true
 [submodule "mctop-basic"]
 	path = src/mctop-basic
 	url = https://github.com/dalehamel/bcc.git
-	shallow = true
 [submodule "mctop-read-bytes"]
 	path = src/mctop-read-bytes
 	url = https://github.com/dalehamel/bcc.git
-	shallow = true
 [submodule "mctop-garbled"]
 	path = src/mctop-garbled
 	url = https://github.com/dalehamel/bcc.git
-	shallow = true
