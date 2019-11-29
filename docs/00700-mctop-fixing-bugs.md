@@ -240,12 +240,6 @@ That didn't work unfortunately, it threw this eBPF verifier error:
 ```{.gnuassembler include=src/ebpf-error.txt startLine=136 endLine=142}
 ```
 
-The corresponding code in the linux eBPF verifier shows where this is emitted
-from:
-
-```{.c include=src/linux/kernel/bpf/verifier.c startLine=2933 endLine=2954}
-```
-
 So without being an expert in the eBPF verifier or the linux kernel, this
 result re-enforced that the issue was because the length being provided for
 the probe read was non-const.
@@ -275,20 +269,67 @@ close enough to 255 that a mask of `0xFF` would be able to mask:
 
 ```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
 ```
-So this meant that the mask of `0xFF` or `1111 1111` in binary would be able
-to verify with a bitwise `&` operation that a given `uint8_t` would be less
-than or equal to 255. This would change the unknown value read from the probe,
-to one that the verifier has compared with a mask to assert it is of a bounded
-size.
 
-This lead to the final probe code looking like:
+By just setting the buffer size to 255, the maximum that will fit in a single
+byte, the verifier is now able to determine that no matter what value is read
+from `keysize`, it will be safe, and that a buffer overflow cannot be possible.
 
-```{.c include=src/bcc/tools/mctop.py  startLine=130 endLine=130}
+This change permits the verifier to allow the read of `keysize` without any
+extra checking required, as there is no possible way it can cause a buffer
+overflow.
+
+The binary representation of 0xFF (255 decimal) is `1111 1111`. To test this
+theory, I decided to flip that last bit to 0, to get `0111 1111`. Back to
+hexadecimal, this is 0x7F, and in decimal this is 127. By manually masking the
+`keysize` with this mask, it works! If, however, I drop the size of the buffer
+to 126, I get a verifier error once again.
+
+The reason why this happens is visible in the disassembly of the generated eBPF
+program:
+
+```{.gnuassembler include=src/crashing.disasm startLine=65 endLine=70}
 ```
 
-As indicated, this passed the verifier!
+By convention [@bpf-register-architecture], `R1` is used for the first argument
+to the call of `bpf_probe_read` (builtin function "4"), and `R2` is used for the
+second argument. `R6` is used as a temporary register, to store the value of
+`R10`, which is the frame pointer. From earlier in the disassembly code, we can
+see where the byte array is initialized.
 
-// FIXME show the change in eBPF generated code and explain it.
+In the crashing version in looks like this:
+
+```{.gnuassembler include=src/crashing.disasm startLine=5 endLine=22}
+```
+
+But in the non-crashing version in looks like this:
+
+```{.gnuassembler include=src/noncrashing.disasm startLine=5 endLine=23}
+```
+
+The difference is subtle, but we can see that the crashing version
+allocates 15 u64 + 1 u32 + 1 u16. Converting this to bytes, we get (15 * 8 +
+1 * 4 + 1 * 2) = 126 bytes allocated.
+
+In the non-crashing version, it is 15 u64 + 1 u32 + 1 u16 + 1 u8. In bytes,
+this works out to 127 bytes. So that verifier message for the crashing program:
+
+```gnuassembler
+60: (85) call bpf_probe_read#4
+invalid indirect read from stack off -128+126 size 127
+```
+
+Is complaining about the first argument, `R1`, which is set from `R10`, not
+being of sufficient size to be certain that the value read in R2 (guaranteed
+by the bitwise AND operation to be no more than 127).
+
+To summarize, there were two ways to solve this issue - either increase the
+buffer size to 255 so that there was no way that the `uint8_t` container used
+by `keysize` could possible overflow it, or bitwise AND the `keysize` value
+with a hex-mask that is sufficient to prove it cannot be a buffer overflow.
+
+This might seem like a pain, but this extra logic is the cost of safety - this
+code will be running within the kernel context, and needs to pass the
+verifier's pat-down.
 
 ## Different signatures for USDT args
 

@@ -96,9 +96,15 @@ references:
   title: USDT Report Doc
   author:
   - given: Dale
-    family: Hames
+    family: Hamel
   URL: https://blog.srvthe.net/usdt-report-doc/
 - id: dormando
   title: Dormando's Home Page
   author: Dormando
   URL: http://www.dormando.me/
+- id: bpf-register-architecture
+  title: BPF internals - architecture
+  author:
+  - given: Suchakra
+    family: Sharma
+  URL: https://github.com/iovisor/bpf-docs/blob/master/bpf-internals-2.md#architecture

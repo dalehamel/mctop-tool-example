@@ -137,7 +137,7 @@ have the static key to collect latency data embedded in the eBPF source.
 An inline `match_key` function is used to iterate through the buffer to compare
 until it finds the key in full or finds a mismatching character and returns
 early. This bounded loop is permitted in eBPF, but may be wastful processing
-at large key sizes.[^11]
+at large key sizes.
 
 When a trace on a memcached command is executed, it stores the `lastkey` in a
 map [^12]. In another probe on `process__command__end`, this is accessed and
@@ -169,11 +169,6 @@ This script is submitted in its entirety:
 ```{.python include=src/bcc/tools/mctop.py}
 ```
 
-[^11]: to work around this issue, a solution could be to ensure that the 256 bit
-       buffer is initialized to 0x0000000000000000. When the character data is
-       copied into the buffer, a comparison of the buffer with the key
-       representation masked with a bitwise `&` should offer a predictable and
-       quicker comparison, running only 4 operations instead of potentially 250
 [^12]: this is indexed by connection ID right now, but I think that thread id
        or perhaps a composition of connection and thread id should be used, to
        ensure that this representation is compatible with memcached's threading
