@@ -53,8 +53,8 @@ Which shows us that it is indeed a symbol we can access:
 ...
 ```
 
-This is how `bpftrace` will target the probe, and seeing this is all we needed
-to see to know we could try it.
+This is how `bpftrace` will target the probe, and seeing this is all that is
+needed to see to know in order to try it.
 
 ## uprobe prototype
 
@@ -62,8 +62,8 @@ To probe read the commands issued to `memcached`, we can target the binary
 directly[^2], and insert a breakpoint at this address. When the breakpoint is
 hit, our eBPF probe is fired, and then `bpftrace` can read the data from it.
 
-The simplest possible would just read the command and print it, which can
-easily be done as a `bpftrace` one-liner:
+The simplest solution and first step is to just read the command and print it
+ which can easily be done as a `bpftrace` one-liner:
 
 ```awk
 bpftrace -e 'uprobe:/proc/896719/root/usr/local/bin/memcached:process_command { printf("%s\n", str(arg1)) }'

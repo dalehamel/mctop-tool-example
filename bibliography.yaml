@@ -63,6 +63,9 @@ references:
   - given: Yonghong
     family: Song
   URL: https://github.com/iovisor/bcc/issues/1260#issuecomment-406365168
+- id: bcc-usdt-reference
+  title: BCC USDT reference guide
+  URL: https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#6-usdt-probes
 - id: fbs
   title: Bas Smit github
   author:

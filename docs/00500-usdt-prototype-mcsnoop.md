@@ -47,14 +47,12 @@ Ultimately, the most complete working version of this bpftrace prototype is
 something I'd rather call `mcsnoop`, as it snoops `memcached` key access using
 USDT probes.
 
-This is the current most working version, and solves the problem I would later
-have in my `bcc` version of treating `void *` byte buffers properly, which I'll
-be covering in more detail later. The TL;DR of this is that `memcached` (and
-probably lots of other OG dtrace stuff) provides access via a 2-tuple o args,
-the first being the start of the buffer address, and the second being the
-length of the string data in the buffer. For this reason, the following script
-uses bpftrace functionality of `str(buffer, len)` signature to properly read
-keys from `memcached`.
+This is the current most functional version of the `bpftrace` utility, when
+ I stopped development on it[^18]:
 
 ```{.awk include=src/mcsnoop-working.bt}
 ```
+
+[^18]: this solves the problem I would later have in my `bcc` version of
+       treating `void *` byte buffers properly, which I'll be covering in more
+       detail later.

@@ -30,7 +30,7 @@ dtrace probes was this snippet:
 ```{.bash include=src/docker/Dockerfile startLine=9 endLine=14}
 ```
 
-Though the package is being pulled from ubuntu, all we need is a few files.
+Though the package is being pulled from Ubuntu, all we need is a few files.
 This package just installs the `sys/sdt.h` header, and a stub command of
 `dtrace` that can be used to convert a dtrace file into a generated header,
 providing the necessary macros to add tracepoints. The Debian archive is
@@ -40,7 +40,7 @@ the docker image at standard paths.
 Then on the configure line for `memcached`, just adding `--enable-dtrace` was
 sufficient:
 
-```{.bash include=src/docker/Dockerfile startLine=54 endLine=60}
+```{.bash include=src/docker/Dockerfile startLine=54 endLine=61}
 ```
 
 Then the image is built with `Docker build . -t memcached-dtrace` in this

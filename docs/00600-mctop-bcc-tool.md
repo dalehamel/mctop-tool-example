@@ -4,14 +4,27 @@ To make a fully-featured port of `mctop`, `bpftrace` wouldn't quite fit the
 bill, as it doesn't have quite the same flexibility as python when it comes to
 post-processing data.
 
-## USDT example from reference guide overview
+## USDT example
 
-Explain bit by bit what it is doing
-
-FIXME link to reference guide in bibliography
+From the `bcc` reference guide [@bcc-usdt-reference], an example program
+snippet is provided showing how to read data from a USDT argument:
 
 ```{.c include=src/bcc/docs/reference_guide.md startLine=235 endLine=242}
 ```
+
+It just declares a 64 bit integer to store an address, and 128-byte character
+array to store a path, presumably a string.
+
+`bpf_usdt_readarg` is used to read the argument, and is called to store the
+literal value of an integer for `addr`, and this value happens to be a pointer
+to where the string for `path` is stored in the memory space. This is handled
+by the next call.
+
+`bpf_probe_read` reads a fixed number of bytes, starting from the pointer
+address.
+
+With these basics, the tool could be translated to C (for the probes) and
+Python (for the UI and post-processing / deriving second-order values).
 
 ## Examining some real tools
 
