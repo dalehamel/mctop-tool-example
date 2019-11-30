@@ -5,27 +5,27 @@ issue was because we have distributed eBPF tools in production via a custom
 toolbox image for about a year now, and have had `bpftrace` deployed to
 production along with the standard bcc tools.
 
-Our development tooling also installs kubectl-trace onto the laptop of anyone 
+Our development tooling also installs `kubectl-trace` onto the laptop of anyone
 with production access. This makes it easy for developers to probe their
 applications, and the system faculties that support them. Developing this sort
 of tool library allows for easily applying purpose-built analysis tools to dig
 in and investigate production issues.
 
 This brings into reach tools that would otherwise be too scare or inaccessible,
-like kernel kprobes and uprobes. `bpftrace`, in particular, allows for simple
+like kernel `kprobes` and uprobes. `bpftrace`, in particular, allows for simple
 and concise probe definitions, and is great for prototyping more complex tools,
 and poking around to find useful data sources.
 
 In particular for this issue, bpftrace has the ability to target any ELF binary
 with uprobes and read method calls and returns for an application like
-memcached. This was the first entry-point into investigating the memcached key
-access patterns.
+`memcached`. This was the first entry-point into investigating the `memcached`
+key access patterns.
 
 ## memcached sources
 
 My colleague Camilo Lopez [@camilo-github] came up with the idea to attach a
-uprobe to the `process__command` function in memcached. In the memcached source
-code, we can its signature in `memcached.c`:
+uprobe to the `process__command` function in `memcached`. In the `memcached`
+source code, we can its signature in `memcached.c`:
 
 ```{.c include=src/memcached/memcached.c startLine=5756 endLine=5756}
 ```
@@ -34,7 +34,7 @@ This shows us that the second argument (`arg1` if indexed from 0) is the command
 string, which contains the key.
 
 Now that we know the signature, we can verify that we  can find this symbol in
-the memcached binary:
+the `memcached` binary:
 
 ```
 objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command -B2 -A2
@@ -58,7 +58,7 @@ to see to know we could try it.
 
 ## uprobe prototype
 
-To probe read the commands issued to memcached, we can target the binary
+To probe read the commands issued to `memcached`, we can target the binary
 directly[^2], and insert a breakpoint at this address. When the breakpoint is
 hit, our eBPF probe is fired, and then `bpftrace` can read the data from it.
 
@@ -70,27 +70,35 @@ bpftrace -e 'uprobe:/proc/896719/root/usr/local/bin/memcached:process_command { 
 ```
 [^6]
 
-Then, if I issue a test command, I can  see the output!:
+Then with a test command there is output! Data has been read from the
+`memcached` process through the kernel.
 
 ```
 Attaching 1 probe...
 set memtier-3652115 0 60 4
 ```
 
-Great! Now, to quickly turn this into a useful tool, I can add the keys to a
-dictionary, using the `++` operator to count each time the command is called:
+Now, to quickly turn this into a relatively useful tool, each time a key is hit
+it can be incremented in a dictionary. Using the `++` operator to count each
+time the command is called:
 
 ```{.awk include=src/uprobe-v1.bt}
 ```
 
-When this exits, it will print a map of the top run commands, which should
+When this exits, it will print a sorted map of the commands, which should
 correspond to the most frequently accessed keys.
 
-With a working uprobe prototype, my attention now turns to getting better
-quality data. `bpftrace` doesn't really have the faculty to parse strings at
-the moment, so it is better if arguments are passed of a known type. This
-problem is solved by the USDT tracepoint protocol, established by the popular
-use of dtrace.
+With a working uprobe prototype, attention now turns to getting better quality
+data. `bpftrace` doesn't really have the faculty to parse strings at the
+moment and this is inherently pretty inefficient, and not something ideal to do
+on each probe, so it is better if arguments are passed of a known type.
+
+The problem of building more flexible tools is better solved by the use of the
+USDT tracepoint protocol for defining static tracepoints. Fortunately, this has
+already been established in many packages by the popular use of `dtrace`
+on other Unix platforms like Solaris, BSD, their derivatives, such as Darwin.
+ Systemtap has provided Linux compatibility, which is what `bpftrace` and `bcc`
+ are able to leverage.
 
 [^1]: Using docker or crictl, we can find the container process and inspect its
     children to find the memcached process. This method then uses the `/root`

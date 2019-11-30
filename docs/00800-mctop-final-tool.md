@@ -14,25 +14,16 @@ recommended.
 ## UI Re-Design
 
 This probably took most of the time. The other `*top.py` tools I saw didn't
-really offer the interactive experience that the original `mctop` in ruby did.
+really offer the interactive experience that the original `mctop` in Ruby did.
 
-Most of the time here was spent re-acquainting myself with terminal concepts,
-and getting the `select` statement set up properly for receiving user
-input. I based most of this on the original `mctop` in ruby.
+Most of the time here was spent re-acquainting myself with TTY concepts, and
+getting the `select` statement set up properly for receiving user input. I
+based the scaffold of this on the original `mctop` in Ruby, and copied its
+design patterns.
 
 I decided to add a couple of fields, as I was capturing more data than the
-original, and I changed how tray bar of the tool works entirely.
-
-I analyzed the original screenshot and browsed through the
-source code of `mctop` to see how it was building its UI and accepting input.
-
-I was able to construct the corresponding header line that I would use later
-in trying to mimic it in bpftrace. 
-
-From this line in the original ruby `mctop` for instance:
-
-```{.ruby include=src/mctop/lib/ui.rb startLine=128 endLine=134}
-```
+original, and I changed how tray bar of the tool works entirely. Beyond just
+sorting keys by various attributes, specific keys could be analyzed.
 
 ## Feature Implementation
 
@@ -54,10 +45,15 @@ And just as Ruby had a switch on the different inputs:
 ```{.ruby include=src/mctop/bin/mctop startLine=36 endLine=62}
 ```
 
-So to was this almost directly ported to Python:
+So too was this almost directly ported to Python:
 
 ```{.python include=src/bcc/tools/mctop.py  startLine=172 endLine=194}
 ```
+
+The concept is just a giant if-ladder, as Python has no case statements. This
+matches on the letters, and kick off whatever function or change whatever
+configuration they need to. This got complicated as I added more keys to allow
+for navigation of the sorted key data.
 
 ### Sorting
 
@@ -66,17 +62,22 @@ To sort the data, a lambda was defined for each sort mode:
 ```{.python include=src/bcc/tools/mctop.py  startLine=144 endLine=163}
 ```
 
+This is called on the map for each period of the refresh interval, so the
+ordering of keys displayed may change each second, should the rank of a key
+differ from the previous interval.
+
 ### Dumping data
 
 Since it would probably be useful to be able to analyze the collected data,
-the python mapping of the original eBPF map can be saved to a JSON file for
+the Python mapping of the original eBPF map can be saved to a JSON file for
 analysis when the map is cleared. This also allows for `mctop` to act as a sort
-of `mckeydump` tool, saving the data that was traced in a session:
+of `memcached-dump` tool (à la `tcpdump`), saving the data for archival purposes
+or offline analysis.
 
 ```{.python include=src/bcc/tools/mctop.py  startLine=196 endLine=206}
 ```
 
-This should allow for a simple pipeline of memcached metrics into other
+This should allow for a simple pipeline of `memcached` metrics into other
 centralized logging systems.
 
 ## View Modes
@@ -125,7 +126,7 @@ To be able to add a new data source and expand on the functionality of the
 `mctop` predecessor, the latency commands hitting each key could be measured
 and displayed in aggregate.
 
-This additional data could also be used to plug into bcc's histogram map type
+This additional data could also be used to plug into `bcc`'s histogram map type
 and print function, showing an informative `lg2` representation of the latency
 for commands hitting the key.
 
@@ -136,20 +137,20 @@ have the static key to collect latency data embedded in the eBPF source.
 
 An inline `match_key` function is used to iterate through the buffer to compare
 until it finds the key in full or finds a mismatching character and returns
-early. This bounded loop is permitted in eBPF, but may be wastful processing
+early. This bounded loop is permitted in eBPF, but may be wasteful processing
 at large key sizes.
 
-When a trace on a memcached command is executed, it stores the `lastkey` in a
+When a trace on a `memcached` command is executed, it stores the `lastkey` in a
 map [^12]. In another probe on `process__command__end`, this is accessed and
 compared with the hard-coded and selected key from the UI. When there is a
 match, the computed latency data is added to the histogram.
 
 Upon entering histogram mode, the selected data will be immediately displayed
-on the same refresh interval. This shows the realtime variations in memcached
+on the same refresh interval. This shows the realtime variations in `memcached`
 latency, in buckets of doubling size.
 
 Switching to histogram mode will detach and replace running probes, and discard
-the collected data, replacing the eBPF probes with a function that is targetted
+the collected data, replacing the eBPF probes with a function that is targeted
 to a specific cache key.[^13]
 
 #### Inspect Key
@@ -158,8 +159,8 @@ to a specific cache key.[^13]
 
 Since the goal of the tool is to share it, especially so fans of the original
 `mctop` or `memkeys` command could have access a light-weight eBPF option, it
-is definitely a goal to share this tool and get it into good enough shape for 
-it to pass a pull request review[@bcc-contributing-tools].
+is definitely a goal to share this tool and get it into good enough shape for
+it to pass a pull request review [@bcc-contributing-tools].
 
 For this reason, this report was prepared to supplement the material around the
 `mctop` tool included in the pull request.

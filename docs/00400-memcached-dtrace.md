@@ -2,28 +2,28 @@
 
 If an application supports USDT tracepoints already, it can be much easier to
 trace it. It was a relief that when we went looking, we found dtrace probe
-points in the memcached source.
+points in the `memcached` source.
 
 The presence of this established pattern for comprehensive dtrace tracepoints
 significantly simplified building a lightweight and simple tool. Examining the
-memcached source, we can see exactly how these probes are invoked, and that
+`memcached` source, we can see exactly how these probes are invoked, and that
 processing of these tracepoints at all is conditional on them being attached
 to.
 
 ```{.c include=src/memcached/memcached.c startLine=1358 endLine=1386}
 ```
 
-Unfortunately, when I checked a production memcached instance with `tplist` or
-`bpftrace -l 'usdt:* -p $(pidof memcached)`, I didn't see any probes. This meant
- that I would need to find a way to modify our memcached image to add dtrace
-probes.
+Unfortunately, when I checked a production `memcached` instance with `tplist`
+or `bpftrace -l 'usdt:* -p $(pidof memcached)`, I didn't see any probes. This
+meant that I would need to find a way to modify our `memcached` image to add
+`dtrace` probes.
 
-Our build of memcached is based on alpine, which doesn't have the systemtap
-compatibility headers. However, it was building memcached from source already,
-which significantly simplified building a modified memcached image with dtrace
-probes enabled.
+The build of `memcached` I was working with is based on alpine, which doesn't
+have the systemtap compatibility headers. However, it was building `memcached`
+from source already, which significantly simplified building a modified
+`memcached` image with `dtrace` probes enabled.
  
-The Dockerfile [@dockerfile] that used was based on a production configuration
+The `Dockerfile` [@dockerfile] that used was based on a production configuration
 which has been simplified for this analysis. The relevant addition to add
 dtrace probes was this snippet:
 
@@ -37,14 +37,14 @@ providing the necessary macros to add tracepoints. The Debian archive is
 extracted, and the `/usr/bin/dtrace` shell stub and headers are copied into
 the docker image at standard paths.
 
-Then on the configure line for memcached, just adding `--enable-dtrace` was
+Then on the configure line for `memcached`, just adding `--enable-dtrace` was
 sufficient:
 
 ```{.bash include=src/docker/Dockerfile startLine=54 endLine=60}
 ```
 
 Then the image is built with `Docker build . -t memcached-dtrace` in this
-directory, producing a memcached image with dtrace probes.
+directory, producing a `memcached` image with dtrace probes.
 
 During the configure process, I can see that it finds the dtrace stub:
 
@@ -65,16 +65,16 @@ mv mmc_dtrace.tmp memcached_dtrace.h
 ```
 
 This generated header defines the macros which are actually called in the
-source code of memcached, for instance:
+source code of `memcached`, for instance:
 
 
 ```{.c include=src/memcached_dtrace.h startLine=93 endLine=95}
 ```
 
-So it seems like the dtrace support has been built into memcached. Now that the
-image has been built, this can be verified against a running process instance.
-To start a test instance the docker commands to bind to localhost on the
-standard memcached port are:
+So it seems like the dtrace support has been built into `memcached`. Now that
+the image has been built, this can be verified against a running process
+instance. To start a test instance the docker commands to bind to localhost on
+the standard `memcached` port are:
 
 ```
 docker run --name memcached-dtrace -p 11211:11211 memcached-dtrace
@@ -86,19 +86,20 @@ Or, alternatively, use an image already built:
 docker run --name memcached-dtrace -p 11211:11211 quay.io/dalehamel/memcached-dtrace:latest
 ```
 
-To probe it, we'll need to get the pid of memcached:
+To probe it, we'll need to get the process ID of `memcached`:
 
 ```
 MEMCACHED_PID=$(docker inspect --format '{{.State.Pid}}' memcached-dtrace)
 ```
 
-Now I can run `tplist` from bcc, or use bpftrace[^8] to list the USDT tracepoints:
+Now I can run `tplist` from bcc, or use bpftrace[^8] to list the USDT
+tracepoints:
 
 ```
 tplist -p ${MEMCACHED_PID}
 ```
 
-Shows for me:
+Shows These tracepoints[^16]:
 ```
 /usr/local/bin/memcached memcached:conn__create
 /usr/local/bin/memcached memcached:conn__allocate
@@ -133,11 +134,15 @@ Shows for me:
 /usr/local/bin/memcached memcached:conn__dispatch
 ```
 
-Meaning that I added probes successfully, and now can, try to target them.
+This showed that probes had been recognized on the binary, and so the had been
+compiled in successfully, even though there was no available OS package. This
+shows the versatility and ease with which these probes can be applied to
+existing application suites.
 
-To test this out, I can send a test 'set' command to my memcached instance.
-I chose one based off the benchmarking tool `memtier`, which i'll use later.
-A simple invocation [@memcached-cheatsheet] based on standard shell tools is:
+To test this out, I can send a test 'SET' command to my `memcached` instance.
+I chose one based off the benchmarking tool `memtier_benchmark`, which I'll use
+later. A simple invocation [@memcached-cheatsheet] based on standard shell
+tools is:
 
 ```
 printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211
@@ -165,3 +170,5 @@ further to provide more functionality, closer to being on-par with the original
       fixed in a future bpftrace / bcc release.
 [^9]: on a production instance, I had to further modify the dtrace setup in
       order to disable semaphores, see https://github.com/iovisor/bcc/issues/2230
+[^16]: These entries correspond to the data read from `readelf --notes`
+      elsewhere in this report, as that is where these entries are read from.
