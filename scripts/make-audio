@@ -21,7 +21,15 @@ generate_speech()
     echo -e "Generating speech for ${fname}"
     echo -e "\tPatching plain-text for ${fname} and optimizing text for playback"
     echo -e "\tSubmitting ${fname} to google translate for speech generation"
+
+    # I can't figure out a way to join multiple adjacent lines of a paragraph
+    # with sed or perl, but this vim stream seems to do the trick, and vim is in
+    # the docker container, and it's a regex so it's kinda cryptic anyways
+    #  vim -E '+%s/^[\d\+\]\_.*' +%p -cq! /dev/stdin # This is to strip footnotes
+    #  vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin # this is to join into paragraphs
+
     time sed 's/\[.*\]//g' $file | \
+      vim -E '+%s/^[\d\+\]\_.*' +%p -cq! /dev/stdin | \
       vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
       gtts-cli -f - -o $outfile
 

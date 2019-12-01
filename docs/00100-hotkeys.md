@@ -37,7 +37,7 @@ no protocol interpretation is required.
        through a rigorous and scientific series of tests, measuring the
        overhead of both approaches under various conditions, it may not be
        the case. One possible drawback of the eBPF based approach is it
-       causes some overhead as probes fire software interrupts when
+       causes some overhead as probes fire software-interrupts when
        triggered, which may not be the case with tcpdump, even if it is
        doing more processing.
 
