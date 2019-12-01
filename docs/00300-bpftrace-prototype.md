@@ -5,11 +5,11 @@ issue was because we have distributed eBPF tools in production via a custom
 toolbox image for about a year now, and have had `bpftrace` deployed to
 production along with the standard bcc tools.
 
-Our development tooling also installs `kubectl-trace` onto the laptop of anyone
-with production access. This makes it easy for developers to probe their
-applications, and the system faculties that support them. Developing this sort
-of tool library allows for easily applying purpose-built analysis tools to dig
-in and investigate production issues.
+At Shopify, `kubectl-trace` is standard issue to anyone with production
+access. This makes it easy for developers to probe their applications,
+and the system faculties that support them. Developing this sort of tool
+library allows for easily applying purpose-built analysis tools to
+investigate production issues.
 
 This brings into reach tools that would otherwise be too scary or inaccessible,
 like kernel `kprobes` and uprobes. `bpftrace`, in particular, allows for simple
@@ -24,7 +24,7 @@ patterns.
 ## memcached sources
 
 My colleague Camilo Lopez [@camilo-github] came up with the idea to attach a
-uprobe to the `process__command` function in `memcached`. In the Memcached
+uprobe to the `process__command` function in Memcached. In the Memcached
 source code, we can its signature in `memcached.c`:
 
 ```{.c include=src/memcached/memcached.c startLine=5756 endLine=5756}
@@ -34,7 +34,7 @@ This shows us that the second argument (`arg1` if indexed from 0) is
 the command string, which contains the key.
 
 Now that we know the signature, we can verify that we  can find this symbol in
-the `memcached` binary:
+the Memcached binary:
 
 ```
 objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command -B2 -A2
@@ -58,12 +58,14 @@ needed to see to know in order to try it.
 
 ## uprobe prototype
 
-To probe read the commands issued to `memcached`, we can target the binary
-directly[^2], and insert a breakpoint at this address. When the breakpoint is
-hit, our eBPF probe is fired, and then `bpftrace` can read the data from it.
+To probe read the commands issued to Memcached, we can target the binary
+directly[^2], and insert a breakpoint at this  address of given signals.
+When the breakpoint is hit, our eBPF probe is fired, and bpftrace can
+read the data from it.
 
-The simplest solution and first step is to just read the command and print it
- which can easily be done as a `bpftrace` one-liner:
+The simplest solution and first step towards a more sophisticated tool
+is to just read the command and print it which can easily be done as a
+bpftrace one-liner:
 
 ```awk
 bpftrace -e 'uprobe:/proc/896719/root/usr/local/bin/memcached:process_command { printf("%s\n", str(arg1)) }'
@@ -71,7 +73,7 @@ bpftrace -e 'uprobe:/proc/896719/root/usr/local/bin/memcached:process_command { 
 [^6]
 
 Then with a test command there is output! Data has been read from the
-`memcached` process through the kernel.
+Memcached process through the kernel.
 
 ```
 Attaching 1 probe...
@@ -88,10 +90,11 @@ time the command is called:
 When this exits, it will print a sorted map of the commands, which should
 correspond to the most frequently accessed keys.
 
-With a working uprobe prototype, attention now turns to getting better quality
-data. `bpftrace` doesn't really have the faculty to parse strings at the
-moment and this is inherently pretty inefficient, and not something ideal to do
-on each probe, so it is better if arguments are passed of a known type.
+With a working uprobe prototype, attention now turns to getting better
+quality data. bpftrace doesn't really have the faculty to parse strings
+at the moment and this is inherently pretty inefficient, and thus not
+something ideal to do on each probe, so it is better if arguments are
+passed of a known type.
 
 The problem of building more flexible tools is better solved by the use of the
 USDT tracepoint protocol for defining static tracepoints. Fortunately, this has

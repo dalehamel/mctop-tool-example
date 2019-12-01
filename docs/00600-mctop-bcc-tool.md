@@ -38,7 +38,7 @@ understanding of how to port my bpftrace script to bcc.
 
 The first example I looked at was one for instrumenting MySQL. This goes to
 show just how much of a swiss-army-knife USDT can be - the same tools can be
-used to debug `memcached` and MySQL!
+used to debug Memcached and MySQL!
 
 The C code segment of this script showed a real invocation of the methods to
 read USDT argument data, and how to set up a map to store structured data:

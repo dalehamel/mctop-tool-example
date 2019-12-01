@@ -1,50 +1,43 @@
 # Memcached Static Tracepoints
 
-If an application supports USDT tracepoints already, it can be much easier to
-trace it. It was a relief that when we went looking, we found dtrace probe
-points in the `memcached` source.
+If an application supports USDT tracepoints already, then no
+modification of the source code is necessary. Fortunately, Memcached
+already includes Dtrace probes and strategic spots within the codebase.
 
-The presence of this established pattern for comprehensive dtrace tracepoints
-significantly simplified building a lightweight and simple tool. Examining the
-`memcached` source, we can see exactly how these probes are invoked, and that
-processing of these tracepoints at all is conditional on them being attached
-to.
+The presence of this established pattern for comprehensive dtrace
+tracepoints significantly simplified building a lightweight and simple
+tool. This section of the Memcached source, shows how these probes are
+invoked:
 
 ```{.c include=src/memcached/memcached.c startLine=1358 endLine=1386}
 ```
 
-Unfortunately, when I checked a production `memcached` instance with `tplist`
+Unfortunately, when I checked a production Memcached instance with `tplist`
 or `bpftrace -l 'usdt:* -p $(pidof memcached)`, I didn't see any probes. This
-meant that I would need to find a way to modify our `memcached` image to add
-`dtrace` probes.
+meant that I would need to find a way to modify our Memcached image to add
+Dtrace probes.
 
-The build of `memcached` I was working with is based on alpine, which doesn't
-have the systemtap compatibility headers. However, it was building `memcached`
-from source already, which significantly simplified building a modified
-`memcached` image with `dtrace` probes enabled.
- 
 The `Dockerfile` [@dockerfile] that used was based on a production configuration
 which has been simplified for this analysis. The relevant addition to add
 dtrace probes was this snippet:
 
 ```{.bash include=src/docker/Dockerfile startLine=9 endLine=14}
 ```
+Though the package is being pulled from Ubuntu, only a few text files
+are needed from it. This package just installs the `sys/sdt.h` header, and
+a stub command of Dtrace that can be used to convert a dtrace file into
+a generated header, providing the necessary macros to add tracepoints.
+The Debian archive is extracted, and the `/usr/bin/dtrace` shell stub and
+headers are copied into the docker image at standard paths.
 
-Though the package is being pulled from Ubuntu, all we need is a few files.
-This package just installs the `sys/sdt.h` header, and a stub command of
-`dtrace` that can be used to convert a dtrace file into a generated header,
-providing the necessary macros to add tracepoints. The Debian archive is
-extracted, and the `/usr/bin/dtrace` shell stub and headers are copied into
-the docker image at standard paths.
-
-Then on the configure line for `memcached`, just adding `--enable-dtrace` was
+Then on the configure line for Memcached, just adding `--enable-dtrace` was
 sufficient:
 
 ```{.bash include=src/docker/Dockerfile startLine=54 endLine=61}
 ```
 
 Then the image is built with `Docker build . -t memcached-dtrace` in this
-directory, producing a `memcached` image with dtrace probes.
+directory, producing a Memcached image with dtrace probes.
 
 During the configure process, I can see that it finds the dtrace stub:
 
@@ -65,16 +58,16 @@ mv mmc_dtrace.tmp memcached_dtrace.h
 ```
 
 This generated header defines the macros which are actually called in the
-source code of `memcached`, for instance:
+source code of Memcached, for instance:
 
 
 ```{.c include=src/memcached_dtrace.h startLine=93 endLine=95}
 ```
 
-So it seems like the dtrace support has been built into `memcached`. Now that
+So it seems like the dtrace support has been built into Memcached. Now that
 the image has been built, this can be verified against a running process
 instance. To start a test instance the docker commands to bind to localhost on
-the standard `memcached` port are:
+the standard Memcached port are:
 
 ```
 docker run --name memcached-dtrace -p 11211:11211 memcached-dtrace
@@ -86,7 +79,7 @@ Or, alternatively, use an image already built:
 docker run --name memcached-dtrace -p 11211:11211 quay.io/dalehamel/memcached-dtrace:latest
 ```
 
-To probe it, we'll need to get the process ID of `memcached`:
+To probe it, we'll need to get the process ID of Memcached:
 
 ```
 MEMCACHED_PID=$(docker inspect --format '{{.State.Pid}}' memcached-dtrace)
@@ -134,40 +127,28 @@ Shows These tracepoints[^16]:
 /usr/local/bin/memcached memcached:conn__dispatch
 ```
 
-This showed that probes had been recognized on the binary, and so the had been
-compiled in successfully, even though there was no available OS package. This
-shows the versatility and ease with which these probes can be applied to
+This showed that probes had been recognized on the binary, and so had
+been compiled-in successfully, even though there was no available OS
+package. This shows the ease with which these probes can be applied to
 existing application suites.
 
-To test this out, I can send a test 'SET' command to my `memcached` instance.
-I chose one based off the benchmarking tool `memtier_benchmark`, which I'll use
-later. A simple invocation [@memcached-cheatsheet] based on standard shell
-tools is:
-
-```
-printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211
-```
-
-Now that I have USDT support, I can rebuild my original uprobe example. Checking
-the dtrace file again, I see the signature for the `process__command` probe. It
-just so happened that the function my colleague Camilo [@camilo-github]
-selected was also a USDT probe point!
+With USDT support confirmed, a probe can be built based on the signature
+for the `process__command` probe.
 
 ```{.c include=src/memcached/memcached_dtrace.d startLine=168 endLine=174}
 ```
 
-Based on this, I built an initial translation of the uprobe tool to use USDT.
-
+Based on this, the uprobe tool from earlier can be rewritten as:
 
 ```{.awk include=src/mcsnoop-usdt.bt}
 ```
 
-But this tool is still very limited, and so I wanted to try and expand it
-further to provide more functionality, closer to being on-par with the original
-`mctop` tool.
+This serves as a minimal proof of concept, but is nowhere close to being
+on-par with the data that the original `mctop` tool could provide.
 
-[^8]: there is actually a bug right now where this isn't working, this will be
-      fixed in a future bpftrace / bcc release.
+[^8]: there is a bug right now where this isn't working for
+      containerized processes, this will be fixed in a future bpftrace /
+      bcc release. // FIXME file bug
 [^9]: on a production instance, I had to further modify the dtrace setup in
       order to disable semaphores, see https://github.com/iovisor/bcc/issues/2230
 [^16]: These entries correspond to the data read from `readelf --notes`

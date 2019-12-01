@@ -16,7 +16,7 @@ recommended.
 This probably took most of the time. The other `*top.py` tools I saw didn't
 really offer the interactive experience that the original `mctop` in Ruby did.
 
-Most of the time here was spent re-acquainting myself with TTY concepts, and
+Most of the time here was spent reacquainting myself with TTY concepts, and
 getting the `select` statement set up properly for receiving user input. I
 based the scaffold of this on the original `mctop` in Ruby, and copied its
 design patterns.
@@ -77,7 +77,7 @@ or offline analysis.
 ```{.python include=src/bcc/tools/mctop.py  startLine=196 endLine=206}
 ```
 
-This should allow for a simple pipeline of `memcached` metrics into other
+This should allow for a simple pipeline of Memcached metrics into other
 centralized logging systems.
 
 ## View Modes
@@ -107,8 +107,8 @@ collect data for a specific key and analyse it.
 
 #### Navigation
 
-To navigate, the `j` and `k` keys can be used to move the between selected keys,
-and the selected key is displayed in the footer bar.
+To navigate, the `j` and `k` keys can be used to move up or down a keys, and
+the selected key is displayed in the footer bar.
 
 The footer bar also now shows the number of pages, segmented by the `maxrows`
 argument. To easily navigate this buffer, `u` and `d` can be used to navigate
@@ -140,14 +140,14 @@ until it finds the key in full or finds a mismatching character and returns
 early. This bounded loop is permitted in eBPF, but may be wasteful processing
 at large key sizes.
 
-When a trace on a `memcached` command is executed, it stores the `lastkey` in a
+When a trace on a Memcached command is executed, it stores the `lastkey` in a
 map [^12]. In another probe on `process__command__end`, this is accessed and
 compared with the hard-coded and selected key from the UI. When there is a
 match, the computed latency data is added to the histogram.
 
-Upon entering histogram mode, the selected data will be immediately displayed
-on the same refresh interval. This shows the realtime variations in `memcached`
-latency, in buckets of doubling size.
+Upon entering histogram mode, the selected data will be immediately
+displayed on the same refresh interval. This shows the real-time
+variations in Memcached latency, in buckets of doubling size.
 
 Switching to histogram mode will detach and replace running probes, and discard
 the collected data, replacing the eBPF probes with a function that is targeted
@@ -157,10 +157,10 @@ to a specific cache key.[^13]
 
 ## Finishing touches and final tool
 
-Since the goal of the tool is to share it, especially so fans of the original
-`mctop` or `memkeys` command could have access a light-weight eBPF option, it
-is definitely a goal to share this tool and get it into good enough shape for
-it to pass a pull request review [@bcc-contributing-tools].
+Since the goal of the tool is to share it, especially so that fans of the
+original `mctop` or `memkeys` command could have access a light-weight eBPF
+option, it is definitely a goal to share this tool and get it into good enough
+shape for it to pass a pull request review [@bcc-contributing-tools].
 
 For this reason, this report was prepared to supplement the material around the
 `mctop` tool included in the pull request.

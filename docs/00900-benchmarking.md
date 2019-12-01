@@ -8,12 +8,12 @@ clear what the cause of the garbled key reads were.
 
 Now that `mctop` has been cleaned up, and keys are stored properly this tool
 can be used to demonstrate how `mctop` works, and show that it can keep up with
-tracing requests to `memcached`.
+tracing requests to Memcached.
 
 ## memtier benchmark
 
 The `memtier_benchmark` tool can be used to generate load to the test
-`memcached` instance that I built earlier, with dtrace probes enabled.
+Memcached instance that I built earlier, with dtrace probes enabled.
 
 Rather than having to print to `nc`, this allows for rapidly firing off a large
 number of commands, showing that the tool is behaving as expected. This also

@@ -44,10 +44,10 @@ address passed in as the third argument, as the `&` operator is used for. This
 is why the `u64 keystr = 0, bytecount = 0;` is above, to declare the sizes of
 these storage containers as 64 bits, unsigned.
 
-In bpftrace, almost all storage is done in 64 bit unsigned integers like this,
-and it is a pretty normal standard to just use a large container like this that
-is a size of a machine word on modern microprocessors. This is because typing
-information is handled differently.
+In `bpftrace`, almost all storage is done in 64 bit unsigned integers like
+this, and it is a pretty normal standard to just use a large container
+like this that is the size of a machine word on modern microprocessors.
+This is because typing information is handled differently.
 
 As it turns out, for reading types properly, it is best with bcc to match the
 storage class to the argument type you are trying to read, otherwise the
@@ -119,7 +119,7 @@ they were printed to the screen: some other unintended data must have been
 making it into the string buffer, and "garbling the keys".
 
 I had mostly been testing with one request at a time, but once I started to
-script sending requests to the test `memcached` instance, the pattern became
+script sending requests to the test Memcached instance, the pattern became
 much more obvious.
 
 In the case of the string, it is meant to be a pointer from its `const char *`
@@ -174,14 +174,14 @@ the full size of the buffer object for its read, and can blow past the actual
 length of the key data! It turns out that if using `bpf_probe_read_str`, it
 never finds a null byte, and so will also just read the whole buffer.
 
-As I learned, `memcached` doesn't necessary store keys as null terminated
+As I learned, Memcached doesn't necessary store keys as null terminated
 strings, or even string data at all - it is arbitrary binary bytes. This is why
 it passes the argument `keylen` in the USDT probe, so that the correct size of
 the key can be read. Using the same process as above, I determined that the
 `keylen` argument was actually stored as a `uint_8`, and was able to get the
 key length easily enough.
 
-### Degarbling in userspace
+### Degarbling in Userspace
 
 Unfortunately, I wasn't actually able to use the `keylen`, as I got a verifier
 error if I tried to pass it, as it was determined to not be a const or provably
@@ -193,7 +193,7 @@ This meant that the same key could be hashed to multiple slots, as they would
 include whatever arbitrary data is after the key in the buffer that is read.
 
 In hindsight, this behavior of passing a buffer and a length to read seems to
-have been intentional for `memcached`. Not performing a string copy is more
+have been intentional for Memcached. Not performing a string copy is more
 efficient, which is why the probe just submits the buffer and the length of the
 data to read.
 
@@ -263,7 +263,7 @@ That showed that a bitwise & with a const value was enough to convince the
 verifier that this was safe! Of course, this only really be easy if the const
 value as a hex mask with all bits activated, like `0xFF`
 
-In the `memcached` source, we can see that `KEY_MAX_LENGTH` is `250`. This is
+In the Memcached source, we can see that `KEY_MAX_LENGTH` is `250`. This is
 close enough to 255 that a mask of `0xFF` would be able to mask:
 
 ```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
@@ -349,7 +349,7 @@ verifier's pat-down, as `libbpf` improves.
 
 During most of my testing, I tested only against the `SET` command, because
 this was convenient. Once I had a more fully-featured tool, I turned my
-attention to tracing the other commands. As I new they all had the same
+attention to tracing the other commands. As I knew they all had the same
 signature from the `dtrace` probe definition, it was assumed to be an easy task
 of just iterating over all of the commands to trace.
 

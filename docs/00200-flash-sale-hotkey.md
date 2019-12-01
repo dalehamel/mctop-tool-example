@@ -27,8 +27,8 @@ teams at Shopify set up "Red team / Blue team" exercises, where the "Red" team
 tries to devise pathological scenarios using our internal load-testing tools,
 used to simulate flash-sale application flows against the platform.
 
-Meanwhile, the other "Blue" monitors the system and mitigates or documents any
-issues that may arise.
+Meanwhile, the other "Blue team" monitors the system to investigate and
+mitigate any issues that may arise.
 
 During one such exercise, my colleague Bassam Mansoob [@bassam] detected
 that there were a few instances where a specific Rails Cache ring would be
@@ -74,24 +74,23 @@ enabled, we found keys that were being hit very frequently:
 @command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_M]: 6779
 ```
 
-Having gained a quick view into what keys ere especially hot, we could direct
-our mitigation efforts towards investigating the code-paths that were
-interacting with them.
+Having gained a quick view into what keys were especially hot, we could
+direct our mitigation efforts towards investigating the code-paths that
+were interacting with them.
 
 ## Hot key mitigation
 
-Since these keys do not change very frequently, we decided to introduce an
-in-memory cache at the application layer inside of rails itself. With a TTL of
-a full minute, it would hit memcached much less frequently.
+Since these keys do not change very frequently, we decided to introduce
+an in-memory cache at the application layer inside of rails itself. With
+a TTL of a full minute, it would hit Memcached much less frequently.
 
-The change was simple, but results were remarkable. Without the in-memory cache
-we see large spikes on both memcached, and mcrouter (the proxy we use to access
-it):
+The change was simple, but the results were remarkable. Without the
+in-memory cache, large spikes on both Memcached, and the Mcrouter proxy:
 
 ## Performance Results
 
-During these hot-spotting events during real or simulated flash sales, we could
-see the application impact without the cache:
+During these hot-spotting events during real or simulated flash sales,
+the impact without the cache is easy to spot:
 
 ![](img/without-cache.png)
 
@@ -115,7 +114,6 @@ investigation with a bespoke tool came about. One of my colleagues[^4] pointed
 me towards `mctop`, and suggested I try to re-implement it in eBPF. This is
 what the remainder of this report will focus on.
 
-[^3]: covered later on
 [^4]: Jason Hiltz-Laforge and Scott Francis, put the idea in my head. Jason had
       suggested it to Scott, attempting to "nerd-snipe"[@xkcd-356] him, but Scott
       successfully deflected that onto me.
