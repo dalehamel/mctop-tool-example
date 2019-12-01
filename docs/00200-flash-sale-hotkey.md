@@ -45,7 +45,7 @@ We could also see a large spike in the rate of GET/SET operations in this span:
 ![](img/get-rate.png)
 
 To pinpoint the problem, we looked to eBPF tools for detecting the hot keys on
-the production Memcached instance we were exercising in our Red/Blue exercise.
+the production Memcached instance we were examining in our Red/Blue exercise.
 
 ### Hot key detection with bpftrace
 
@@ -53,12 +53,8 @@ We used `bpftrace` to probe the Memcached process that would be hit by our
 load-testing tool. For one cache we found one extremely hot key using our first
 uprobe-based prototype[^3]:
 
-```
-@command[gets podYYYrails:NN::feature_rollout:percentages]: 6579978
-@command[delete podYYY:rails:NN::jobs-KEY ...]: 2854
-@command[delete podYYY:rails:NN::jobs-KEY ...]: 3572
-@command[gets podYYY:rails:NN::shop-KEY ...]: 5638
-@command[set podYYY:rails:NN::KEY 1 30 13961]: 9266
+
+```.awk include=src/bpftrace-rails-keys.txt
 ```
 
 It seemed like the cache entry used to determine the ratio of for a particular
@@ -68,10 +64,7 @@ being hit at dramatically higher rates than other keys.
 In our identity cache, used for checking if feature flags for new code are
 enabled, we found keys that were being hit very frequently:
 
-```
-@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_1]: 67772
-@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_N]: 67777
-@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_M]: 6779
+```.awk include=src/bpftrace-feature-keys.txt
 ```
 
 Having gained a quick view into what keys were especially hot, we could
@@ -85,7 +78,7 @@ an in-memory cache at the application layer inside of rails itself. With
 a TTL of a full minute, it would hit Memcached much less frequently.
 
 The change was simple, but the results were remarkable. Without the
-in-memory cache, large spikes on both Memcached, and the Mcrouter proxy:
+in-memory cache, there large spikes on both Memcached, and the Mcrouter proxy.
 
 ## Performance Results
 

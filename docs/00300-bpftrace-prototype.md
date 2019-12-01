@@ -33,7 +33,7 @@ source code, we can its signature in `memcached.c`:
 This shows us that the second argument (`arg1` if indexed from 0) is
 the command string, which contains the key.
 
-Now that we know the signature, we can verify that we  can find this symbol in
+Now that we know the signature, we can verify that we can find this symbol in
 the Memcached binary:
 
 ```
@@ -43,14 +43,8 @@ objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command -B2 -A2
 [^1]
 
 Which shows us that it is indeed a symbol we can access:
-```.gnuassembler
-...
-00000000000155a5 l     F .text  0000000000000337 process_lru_command
-00000000000158dc l     F .text  00000000000003b8 process_extstore_command
-0000000000015c94 l     F .text  00000000000012ac process_command <--- Target
-000000000001799a l     F .text  000000000000019d try_read_udp
-0000000000017b37 l     F .text  00000000000002c7 try_read_network
-...
+
+```.gnuassembler include=src/objdump.txt
 ```
 
 This is how `bpftrace` will target the probe, and seeing this is all that is

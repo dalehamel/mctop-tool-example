@@ -15,7 +15,7 @@ works that can hopefully fill what gaps this report leaves.
 The `mctop` tool was originally developed by etsy [@etsy-mctop], and the author
  wrote an informative blog post [@mctop-blog-post] on the topic that motivated
 the development of the original tool. This concept was developed further by
-tumbler in a similar tool, `memkeys` [@tumblr-memkeys].
+Tumblr in a similar tool, `memkeys` [@tumblr-memkeys].
 
 These tools both produced a top-like interface focussing on Memcached
 key access, with basic abilities to sort the data by column. Awareness

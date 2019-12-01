@@ -66,7 +66,6 @@ pandoc_build()
       -t ${format} \
       --filter pandoc-crossref \
       --filter pandoc-citeproc \
-      --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
       -o output/doc.${format}
   fi
 }

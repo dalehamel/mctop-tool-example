@@ -1,0 +1,3 @@
+@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_1]: 67772
+@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_N]: 67777
+@command[gets podXXX::M:blob:Feature::FEATURE_KEY:SHOP_KEY_M]: 6779
