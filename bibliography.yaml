@@ -117,3 +117,15 @@ references:
   - given: Suchakra
     family: Sharma
   URL: https://github.com/iovisor/bpf-docs/blob/master/bpf-internals-2.md#architecture
+- id: bpf-tools-book-repo
+  title: BPF Performance tools book repo
+  author:
+  - given: Brendan
+    family: Gregg
+  URL:  https://github.com/brendangregg/bpf-perf-tools-book/tree/master/originals
+- id: bpf-perf-tools-book
+  title: BPF Performance tools
+  author:
+  - given: Brendan
+    family: Gregg
+  URL: http://www.brendangregg.com/bpf-performance-tools-book.html

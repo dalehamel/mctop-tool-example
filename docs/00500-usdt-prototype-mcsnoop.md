@@ -10,7 +10,7 @@ In the Dtrace probe definitions file:
 ```
 
 This `command__set` probe negates the need to parse this the command string,
-and it looks like all of the other commands also have dtrace probes.
+and it looks like all of the other commands also have Dtrace probes.
 
 These definitions are generated into header macros that are callable from the
 Memcached source code. This is what the calls to emit data to a probe look
@@ -19,12 +19,11 @@ like in Memcached:
 ```{.c include=src/memcached/memcached.c startLine=1358 endLine=1386}
 ```
 
-This can be tested by sending a test 'SET' command to my Memcached
-instance. A simple invocation [@memcached-cheatsheet] based on standard shell
-tools is:
+This can be tested by sending a test 'SET' command to a Memcached
+instance. By piping printf into netcat, [@memcached-cheatsheet] standard shell
+tools can send test commands in the Memcached string protocol:
 
-```bash
-printf "set memtier-3652115 0 60 4\r\ndata\r\n" | nc localhost 11211
+```{.bash include=src/printf-test.sh}
 ```
 
 By reading arg3 to get the probe size, a bpftrace script could be
@@ -36,7 +35,8 @@ command:
 
 But this wasn't really a `top`-like tool, it just prints results as it gets
 data. To see how this might be done, Brendan Gregg's examples from
-his new book's repo, have slabratetop.bt:
+his new book's [@bpf-perf-tools-book] repo[@bpf-tools-book-repo], has 
+slabratetop.bt:
 
 ```{.awk include=src/bpf-perf-tools-book/originals/Ch14_Kernel/slabratetop.bt startLine=16 endLine=35}
 ```
@@ -54,8 +54,8 @@ Ultimately, the most complete working version of this `bpftrace` prototype
 is something more like a sniffer, so a name like `mcsnoop`, is more
 appropriate.
 
-This is the current most functional version of the bpftrace
-utility:[^18]:
+A full version of the latest source for `mcsnoop`[^18] is available in the
+repository for this report [@this-doc-github]:
 
 ```{.awk include=src/mcsnoop-working.bt}
 ```
