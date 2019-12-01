@@ -295,6 +295,21 @@ second argument. `R6` is used as a temporary register, to store the value of
 `R10`, which is the frame pointer. From earlier in the disassembly code, we can
 see where the byte array is initialized.
 
+| Register | x86 reg | Description                   |
+|----------|---------|-------------------------------|
+| R0       | rax     |    return value from function |
+| R1       | rdi     |    1st argument               |
+| R2       | rsi     |    2nd argument               |
+| R3       | rdx     |    3rd argument               |
+| R4       | rcx     |    4th argument               |
+| R5       | r8      |    5th argument               |
+| R6       | rbx     |    callee saved               |
+| R7       | r13     |    callee saved               |
+| R8       | r14     |    callee saved               |
+| R9       | r15     |    callee saved               |
+| R10      | rbp     |    frame pointer              |
+
+
 In the crashing version in looks like this:
 
 ```{.gnuassembler include=src/crashing.disasm startLine=5 endLine=22}
@@ -352,8 +367,7 @@ a different (larger) storage class resulted in actually reading a value.
 
 
 [^14]: Dormando [@dormando] mentioned in [@memcached-dtrace-issue]
-[^17]: The bit to the right of the @ symbol isn't something I fully understand
-       yet, if you have any resources that explain their purpose, please share
-       them with me. For the purposes of determining argument type, they don't
-       seem significant, and I think are more for machine-use in how to read
-       the argument.
+[^17]: The bit after the @ symbol seems to be the register to read this from.
+       It also looks like it is able to specify offsets relative to the frame
+       pointer, so this probably is based on the platform calling convention,
+       denoting the offset in the stack and size to read.

@@ -1,24 +1,24 @@
 # Flash Sales
 
-In the Commerce business, there is a special class of merchants that run
-"flash-sales". This is characterized by a huge number of visitors to a
+In the commerce-hosting business, there is a special class of merchants that
+run "flash-sales". This is characterized by a huge number of visitors to a web
 storefront, followed (hopefully) by a lot of transactions to purchase whatever
 the newly-released or on-sale item is. These sorts of issues are especially
-notable for the company which employs me, Shopify.
+notable for the employer of the author of this report, Shopify.
 
 Success in a flash sale, unsurprisingly, depend heavily on being able to
 efficiently serve cached data. If a cache isn't performing well, the sale won't
 go well. Much of the contention in a flash sale is on the database. There are
 several caching strategies in place that protect requests from hammering the
 MySQL instance for a Shopify Pod [^10] of shops. By sharing access to a cache
-across a pool of web workers, all web workers within a Shopify Pod to benefit.
+across a pool of web workers, all web workers within a Shopify Pod benefit from
+this large pool of surge capacity.
 
 Despite optimization efforts, in some sales, there can be performance issues.
 Following on an investigation of a sale that didn't go well, we decided to
-perform some hot-key analysis on a test shop using a load testing tool. During
-these load tests, we developed some instrumentation with `bpftrace` to gain
-some insight into the cache access pattern under scenarios we saw in the 
-original issue.
+perform some hot-key analysis on a (not real) test shop using a load testing
+tool. During these load tests, we developed some instrumentation with
+`bpftrace` to gain insight into the cache access pattern.
 
 ## War Games
 
@@ -45,11 +45,11 @@ We could also see a large spike in the rate of GET/SET operations in this span:
 ![](img/get-rate.png)
 
 To pinpoint the problem, we looked to eBPF tools for detecting the hot keys on
-the production memcached instance we were exercising in our Red/Blue exercise.
+the production Memcached instance we were exercising in our Red/Blue exercise.
 
 ### Hot key detection with bpftrace
 
-We used `bpftrace` to probe the memcached process that would be hit by our
+We used `bpftrace` to probe the Memcached process that would be hit by our
 load-testing tool. For one cache we found one extremely hot key using our first
 uprobe-based prototype[^3]:
 
@@ -61,7 +61,11 @@ uprobe-based prototype[^3]:
 @command[set podYYY:rails:NN::KEY 1 30 13961]: 9266
 ```
 
-And in our identity cache, used for checking if feature flags for new code are
+It seemed like the cache entry used to determine the ratio of for a particular
+feature that should be enabled was a very hot key, as the same command was
+being hit at dramatically higher rates than other keys.
+
+In our identity cache, used for checking if feature flags for new code are
 enabled, we found keys that were being hit very frequently:
 
 ```

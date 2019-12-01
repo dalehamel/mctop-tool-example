@@ -5,6 +5,12 @@ references:
   - given: Dale
     family: Hamel
   URL: http://blog.srvthe.net/mctop-tool-example/
+- id: this-doc-github
+  title: Github Repository for this document
+  author:
+  - given: Dale
+    family: Hamel
+  URL: http://github.com/dalehamel/mctop-tool-example/
 - id: etsy-mctop
   title: original mctop
   author:
