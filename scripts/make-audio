@@ -1,17 +1,35 @@
 #!/bin/bash
-set -x
+#set -x
 set -e
 
 # gtts-cli installed from python
 
 mkdir -p output/mp3
 
-for file in output/plain/*.plain; do
+total_seconds=0
 
-  # I can't figure out a way to join multiple adjacent lines of a paragraph
-  # with sed or perl, but this vim stream seems to do the trick, and vim is in
-  # the docker container, and it's a regex so it's kinda cryptic anyways
-  sed 's/[@.*]//g' $file | \
-    vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
-    time gtts-cli -f - -o output/mp3/$(basename $file).mp3
-done
+generate_speech()
+{
+  echo "Generating accessibility audio via google-translate"
+  for file in output/plain/*.plain; do
+
+    # I can't figure out a way to join multiple adjacent lines of a paragraph
+    # with sed or perl, but this vim stream seems to do the trick, and vim is in
+    # the docker container, and it's a regex so it's kinda cryptic anyways
+    fname="$(basename $file)"
+    outfile="output/mp3/${fname}.mp3"
+    echo -e "Generating speech for ${fname}"
+    echo -e "\tPatching plain-text for ${fname} and optimizing text for playback"
+    echo -e "\tSubmitting ${fname} to google translate for speech generation"
+    sed 's/[@.*]//g' $file | \
+      vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
+      gtts-cli -f - -o $outfile
+
+    seconds=$(mp3info -p "%S" $outfile)
+    ((total_seconds+=${seconds}))
+    echo -e "\t\tGenerated ${seconds}s of audio, at ${outfile}"
+  done
+}
+
+generate_speech
+echo "Generated ${total_seconds}s of audio total"

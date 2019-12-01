@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+#set -x
 set -e
 
 if [ "$#" -ge 1 ];then
@@ -40,6 +40,8 @@ EOF
        sed "0,/^\\(#.*\\)$/s//\\1\\n$(echo $audio_str | sed 's;/;\\/;g')/" $file > tmp/$(basename $file)
      done
   fi
+
+  echo "Generating ${format}"
 
   # FIXME can this be DRYed up a bit?
   if [ "${format}" == "html" ];then

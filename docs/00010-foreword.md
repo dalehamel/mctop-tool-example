@@ -8,6 +8,8 @@ header-includes: |
 
 ---
 
+The estimated read time for this document is approximately one hour.
+
 This document [@this-document] is also available in [epub](./output/doc.epub)
 and [pdf](./output/doc.pdf) format if you prefer.
 

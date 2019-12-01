@@ -25,8 +25,16 @@ index.html:
 quirks:
 	scripts/tidy
 
-.PHONY: audio
-audio:
-	scripts/make-audio
+.PHONY: plain
+plain:
+	${DOCKER} run --user `id -u`:`id -g` -v ${PWD}:/app ${PANDOC_BUILDER_IMAGE} /app/scripts/pandoc-build plain
 
-all: doc/build index.html
+.PHONY: audio
+audio: plain
+	${DOCKER} run --user `id -u`:`id -g` -v ${PWD}:/app ${PANDOC_BUILDER_IMAGE} /app/scripts/make-audio
+
+
+.PHONY: outputs
+outputs: doc/build index.html
+
+all: audio outputs

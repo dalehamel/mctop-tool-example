@@ -3,9 +3,6 @@ dist: bionic
 services:
 - docker
 script:
-- pip install gtts --user
-- make FORMATS=plain
-- make audio
 - make
 - make quirks
 deploy:
