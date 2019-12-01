@@ -44,7 +44,7 @@ objdump-tT /proc/PID/root/usr/local/bin/memcached | grep process_command -B2 -A2
 
 Which shows us that it is indeed a symbol we can access:
 
-```.gnuassembler include=src/objdump.txt
+```{.gnuassembler include=src/objdump.txt}
 ```
 
 This is how `bpftrace` will target the probe, and seeing this is all that is

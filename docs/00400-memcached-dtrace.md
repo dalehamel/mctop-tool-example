@@ -94,7 +94,7 @@ tplist -p ${MEMCACHED_PID}
 
 Shows These tracepoints[^16]:
 
-```.bash include=src/tracepoints.txt
+```{.bash include=src/tracepoints.txt}
 ```
 
 This showed that probes had been recognized on the binary, and so had

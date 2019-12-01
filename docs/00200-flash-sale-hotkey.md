@@ -54,7 +54,7 @@ load-testing tool. For one cache we found one extremely hot key using our first
 uprobe-based prototype[^3]:
 
 
-```.awk include=src/bpftrace-rails-keys.txt
+```{.awk include=src/bpftrace-rails-keys.txt}
 ```
 
 It seemed like the cache entry used to determine the ratio of for a particular
@@ -64,7 +64,7 @@ being hit at dramatically higher rates than other keys.
 In our identity cache, used for checking if feature flags for new code are
 enabled, we found keys that were being hit very frequently:
 
-```.awk include=src/bpftrace-feature-keys.txt
+```{.awk include=src/bpftrace-feature-keys.txt}
 ```
 
 Having gained a quick view into what keys were especially hot, we could

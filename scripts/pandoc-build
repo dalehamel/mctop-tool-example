@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FORMATS=(html pdf epub docx plain)
+FORMATS=(html pdf epub docx odt plain)
 # See https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/
 # for highlight style samples
 # builtin styles:
@@ -11,6 +11,7 @@ CODE_HIGHLIGHT_STYLE=tango
 BIB_FORMAT_CSL=ieee-with-url
 
 set -x
+set -e
 
 # See pandoc documentation
 # https://pandoc.org/MANUAL.html
@@ -47,15 +48,13 @@ pandoc_build()
       --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
       -o output/doc.${format}
   elif [ "${format}" == "plain" ];then
-    pandoc docs/*.md \
-      --metadata link-citations=true \
-      --bibliography=bibliography.yaml \
-      --csl "${BIB_FORMAT_CSL}.csl" \
-      -t ${format} \
-      --filter pandoc-crossref \
-      --filter pandoc-citeproc \
-      --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
-      -o output/doc.${format}
+     mkdir -p output/plain
+     for file in docs/*.md; do
+        pandoc $file \
+          -t ${format} \
+          --filter pandoc-crossref \
+          -o "output/plain/$(basename $file).plain"
+     done
   else
      pandoc docs/*.md --toc \
       --top-level-division=chapter \
@@ -66,6 +65,7 @@ pandoc_build()
       -t ${format} \
       --filter pandoc-crossref \
       --filter pandoc-citeproc \
+      --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
       -o output/doc.${format}
   fi
 }
