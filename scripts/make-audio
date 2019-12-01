@@ -23,7 +23,7 @@ generate_speech()
     echo -e "\tSubmitting ${fname} to google translate for speech generation"
     sed 's/\[.*\]//g' $file | \
       vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
-      gtts-cli -f - -o $outfile
+      time gtts-cli -f - -o $outfile
 
     seconds=$(mp3info -p "%S" $outfile)
     ((total_seconds+=${seconds}))
