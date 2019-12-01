@@ -1,9 +1,5 @@
 # hot keys and mctop
 
-<audio controls="1">
-<source src="audio/mp3/00100-hotkeys.md.plain.mp3" type="audio/mpeg"></source>
-</audio>
-
 The topic of hot keys in Memcached has been well-studied, and tools have
 existed to support this ecosystem long since before eBPF was on the scene.
 

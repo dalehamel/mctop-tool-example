@@ -1,6 +1,13 @@
 #!/bin/bash
 
-FORMATS=(html pdf epub docx odt plain)
+set -x
+set -e
+
+if [ "$#" -ge 1 ];then
+  IFS=',' read -ra FORMATS <<< "$@"
+else
+  FORMATS=(html pdf epub docx odt plain)
+fi
 # See https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/
 # for highlight style samples
 # builtin styles:
@@ -10,8 +17,7 @@ CODE_HIGHLIGHT_STYLE=tango
 
 BIB_FORMAT_CSL=ieee-with-url
 
-set -x
-set -e
+EMBED_AUDIO=true
 
 # See pandoc documentation
 # https://pandoc.org/MANUAL.html
@@ -21,9 +27,23 @@ pandoc_build()
 
   format=$1
 
+  docs="docs/*.md"
+
+  if [ "${EMBED_AUDIO}" = true ]; then
+     docs="tmp/*.md"
+     mkdir -p tmp
+     for file in docs/*.md; do
+        audio_str=$(cat << EOF
+<audio controls="1"> <source src="audio/mp3/$(basename $file).plain.mp3" type="audio/mpeg"></source> </audio>
+EOF
+)
+       sed "0,/^\\(#.*\\)$/s//\\1\\n$(echo $audio_str | sed 's;/;\\/;g')/" $file > tmp/$(basename $file)
+     done
+  fi
+
   # FIXME can this be DRYed up a bit?
   if [ "${format}" == "html" ];then
-    pandoc docs/*.md --toc \
+    pandoc ${docs} --toc \
       --self-contained \
       --top-level-division=chapter \
       --metadata date="$( date +'%D %X %Z')" \
@@ -37,7 +57,7 @@ pandoc_build()
       -o output/doc.${format}
 
   elif [ "${format}" == "pdf" ];then
-    pandoc docs/*.md --toc \
+    pandoc ${docs} --toc \
       --top-level-division=chapter \
       --metadata date="$( date +'%D %X %Z')" \
       --metadata link-citations=true \
@@ -49,14 +69,14 @@ pandoc_build()
       -o output/doc.${format}
   elif [ "${format}" == "plain" ];then
      mkdir -p output/plain
-     for file in docs/*.md; do
+     for file in ${docs}; do
         pandoc $file \
           -t ${format} \
           --filter pandoc-crossref \
           -o "output/plain/$(basename $file).plain"
      done
   else
-     pandoc docs/*.md --toc \
+     pandoc ${docs} --toc \
       --top-level-division=chapter \
       --metadata date="$( date +'%D %X %Z')" \
       --metadata link-citations=true \

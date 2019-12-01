@@ -3,10 +3,11 @@ dist: bionic
 services:
 - docker
 script:
+- pip install gtts --user
+- make FORMATS=plain
+- make audio
 - make
 - make quirks
-- pip install gtts --user
-- make audio
 deploy:
   provider: pages
   skip_cleanup: true
