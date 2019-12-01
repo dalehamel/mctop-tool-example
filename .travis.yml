@@ -5,6 +5,8 @@ services:
 script:
 - make
 - make quirks
+- pip install gtts
+- make audio
 deploy:
   provider: pages
   skip_cleanup: true

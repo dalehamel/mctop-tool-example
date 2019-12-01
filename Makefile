@@ -25,4 +25,8 @@ index.html:
 quirks:
 	scripts/tidy
 
+.PHONY: audio
+audio:
+	scripts/make-audio
+
 all: doc/build index.html
