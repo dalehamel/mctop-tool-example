@@ -31,5 +31,5 @@ generate_speech()
   done
 }
 
-generate_speech
+time generate_speech
 echo "Generated ${total_seconds}s of audio total"
