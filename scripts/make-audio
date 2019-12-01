@@ -7,5 +7,11 @@ set -e
 mkdir -p output/mp3
 
 for file in output/plain/*.plain; do
-  time gtts-cli -f $file -o output/mp3/$(basename $file).mp3
+
+  # I can't figure out a way to join multiple adjacent lines of a paragraph
+  # with sed or perl, but this vim stream seems to do the trick, and vim is in
+  # the docker container, and it's a regex so it's kinda cryptic anyways
+  sed 's/[@.*]//g' $file | \
+    vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
+    time gtts-cli -f - -o output/mp3/$(basename $file).mp3
 done
