@@ -5,7 +5,7 @@ services:
 script:
 - make
 - make quirks
-- pip install gtts
+- pip install gtts --user
 - make audio
 deploy:
   provider: pages
