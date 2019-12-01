@@ -26,6 +26,7 @@ generate_speech()
     done <<EOF
 mctop "em see top"
 uprobe "you probe"
+kubectl "kube see tee el"
 EOF
 
     # I can't figure out a way to join multiple adjacent lines of a paragraph
