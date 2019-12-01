@@ -20,25 +20,25 @@ generate_speech()
     echo -e "\tSubmitting ${fname} to google translate for speech generation"
 
     # These translate some words for better phonetics
+
     cp $file /tmp/$fname
-    while read k v; do
-        sed -i "s/$k/$(echo $v | tr -d \")/g" /tmp/$fname
-    done <<EOF
-mctop "em see top"
-uprobe "you probe"
-kubectl "kube see tee el"
-EOF
+
+    if [ -f audio/phonetics.txt ];then
+      while read k v; do
+          sed -i "s/$k/$(echo $v | tr -d \")/gI" /tmp/$fname
+      done < audio/phonetics.txt
+    fi
 
     # I can't figure out a way to join multiple adjacent lines of a paragraph
     # with sed or perl, but this vim stream seems to do the trick, and vim is in
     # the docker container, and it's a regex so it's kinda cryptic anyways
     #  vim -E '+%s/^[\d\+\]\_.*' +%p -cq! /dev/stdin # This is to strip footnotes
     #  vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin # this is to join into paragraphs
-
     time cat /tmp/$fname | \
-      vim -E '+%s/^[\d\+\]\_.*' +%p -cq! /dev/stdin | \
+      sed 's/\[@.*\]//g' | \
       vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
-      sed 's/\[.*\]//g'  | \
+      vim -E '+%s/^[\d\+\].*' +%p -cq! /dev/stdin | \
+      sed 's/\[.*\]//g' | \
       gtts-cli -f - -o $outfile
 
     seconds=$(mp3info -p "%S" $outfile)

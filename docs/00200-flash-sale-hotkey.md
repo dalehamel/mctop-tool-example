@@ -102,8 +102,8 @@ the new cache was not busted very frequently:
 
 ![](img/with-cache-throughput.png)
 
-So quick-and simple `bpftrace` one-liner was able to get us pretty far towards
-resolving this problem!
+So a quick-and simple `bpftrace` one-liner was able to get us pretty far
+towards resolving this problem!
 
 Following this incident, the idea of making it easier to perform this type of 
 investigation with a bespoke tool came about. One of my colleagues[^4] pointed

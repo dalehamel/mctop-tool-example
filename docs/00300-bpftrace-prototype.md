@@ -12,19 +12,19 @@ library allows for easily applying purpose-built analysis tools to
 investigate production issues.
 
 This brings into reach tools that would otherwise be too scary or inaccessible,
-like kernel `kprobes` and uprobes. `bpftrace`, in particular, allows for simple
+like kernel `kprobes` and `uprobes`. `bpftrace`, in particular, allows for simple
 and concise probe definitions, and is great for prototyping more complex tools,
 and poking around to find useful data sources.
 
 For this issue, `bpftrace` has the ability to target any ELF binary with
-uprobes and read method calls and returns for an application like Memcached.
+`uprobes` and read method calls and returns for an application like Memcached.
 This was the first entry-point into investigating the Memcached key access
 patterns.
 
 ## memcached sources
 
 My colleague Camilo Lopez [@camilo-github] came up with the idea to attach a
-uprobe to the `process__command` function in Memcached. In the Memcached
+uprobe to the `process_command` function in Memcached. In the Memcached
 source code, the signature in `memcached.c` shows the argument types and order:
 
 ```{.c include=src/memcached/memcached.c startLine=5756 endLine=5756}
