@@ -17,9 +17,9 @@ or `bpftrace -l 'usdt:* -p $(pidof memcached)`, I didn't see any probes. This
 meant that I would need to find a way to modify our Memcached image to add
 Dtrace probes.
 
-The `Dockerfile` [@dockerfile] that used was based on a production configuration
-which has been simplified for this analysis. The relevant addition to add
-dtrace probes was this snippet:
+The `Dockerfile` [@dockerfile] that was used is based on a production
+configuration which has been simplified for this analysis. The relevant
+addition to add Dtrace probes was this snippet:
 
 ```{.bash include=src/docker/Dockerfile startLine=9 endLine=14}
 ```
@@ -36,7 +36,7 @@ sufficient:
 ```{.bash include=src/docker/Dockerfile startLine=54 endLine=61}
 ```
 
-Then the image is built with `Docker build . -t memcached-dtrace` in this
+The image can be built with `Docker build . -t memcached-dtrace` in this
 directory, producing a Memcached image with dtrace probes.
 
 During the configure process, I can see that it finds the dtrace stub:
@@ -50,15 +50,11 @@ checking for dtrace... /usr/bin/dtrace
 Later on it generates a header `memcached_dtrace.h`, which is conditionally
 included when dtrace probes are enabled: [^9]
 
-```bash
-/usr/bin/dtrace -h -s memcached_dtrace.d
-sed -e 's,void \*,const void \*,g' memcached_dtrace.h | \
-            sed -e 's,char \*,const char \*,g' | tr '\t' ' ' > mmc_dtrace.tmp
-mv mmc_dtrace.tmp memcached_dtrace.h
+```{.bash include=src/dtrace-generate.txt}
 ```
 
-This generated header defines the macros which are actually called in the
-source code of Memcached, for instance:
+This generated header defines the macros which are already called in the
+source code of Memcached:
 
 
 ```{.c include=src/memcached_dtrace.h startLine=93 endLine=95}
@@ -102,8 +98,8 @@ been compiled-in successfully, even though there was no available OS
 package. This shows the ease with which these probes can be applied to
 existing application suites.
 
-With USDT support confirmed, a probe can be built based on the signature
-for the `process__command` probe.
+With USDT support now confirmed, a probe can be built that targets the
+`process__command` probe, reading arguments based on the probe signature.
 
 ```{.c include=src/memcached/memcached_dtrace.d startLine=168 endLine=174}
 ```

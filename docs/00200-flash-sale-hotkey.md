@@ -6,7 +6,7 @@ storefront, followed (hopefully) by a lot of transactions to purchase whatever
 the newly-released or on-sale item is. These sorts of issues are especially
 notable for the employer of the author of this report, Shopify.
 
-Success in a flash sale, unsurprisingly, depend heavily on being able to
+Success in a flash sale, unsurprisingly, depends heavily on being able to
 efficiently serve cached data. If a cache isn't performing well, the sale won't
 go well. Much of the contention in a flash sale is on the database. There are
 several caching strategies in place that protect requests from hammering the
@@ -18,12 +18,12 @@ Despite optimization efforts, in some sales, there can be performance issues.
 Following on an investigation of a sale that didn't go well, we decided to
 perform some hot-key analysis on a (not real) test shop using a load testing
 tool. During these load tests, we developed some instrumentation with
-`bpftrace` to gain insight into the cache access pattern.
+`bpftrace` to gain insight into the cache access patterns.
 
 ## War Games
 
 To make sure that we are testing our systems at scale, platform engineering
-teams at Shopify set up "Red team / Blue team" exercises, where the "Red" team
+teams at Shopify set up "Red team / Blue team" exercises, where the "Red team"
 tries to devise pathological scenarios using our internal load-testing tools,
 used to simulate flash-sale application flows against the platform.
 
@@ -31,7 +31,7 @@ Meanwhile, the other "Blue team" monitors the system to investigate and
 mitigate any issues that may arise.
 
 During one such exercise, my colleague Bassam Mansoob [@bassam] detected
-that there were a few instances where a specific Rails Cache ring would be
+that there were a few instances where a specific Rails cache-ring would be
 overloaded under very high request rates. This reflected conditions we had seen
 in real production incidents. Problems were first detected with our
 higher-level statsd application monitoring:
@@ -49,7 +49,7 @@ the production Memcached instance we were examining in our Red/Blue exercise.
 
 ### Hot key detection with bpftrace
 
-We used `bpftrace` to probe the Memcached process that would be hit by our
+We used `bpftrace` to probe the Memcached process that Was targetted by our
 load-testing tool. For one cache we found one extremely hot key using our first
 uprobe-based prototype[^3]:
 
@@ -78,7 +78,8 @@ an in-memory cache at the application layer inside of rails itself. With
 a TTL of a full minute, it would hit Memcached much less frequently.
 
 The change was simple, but the results were remarkable. Without the
-in-memory cache, there large spikes on both Memcached, and the Mcrouter proxy.
+in-memory cache, there were large spikes on both Memcached, and the Mcrouter
+proxy.
 
 ## Performance Results
 
@@ -91,11 +92,13 @@ And with the in-memory cache, we saw a substantial reduction in latency:
 
 ![](img/with-cache.png)
 
-As for throughput, without the extra caching layer:
+As for throughput, without the extra caching layer throughput to Memcached
+spiked:
 
 ![](img/without-cache-throughput.png)
 
-And the improvements with the in-memory cache added:
+And the improvements with the in-memory cache, throughput was much lower as
+the new cache was not busted very frequently:
 
 ![](img/with-cache-throughput.png)
 

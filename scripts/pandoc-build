@@ -95,5 +95,5 @@ EOF
 mkdir -p output
 
 for format in "${FORMATS[@]}";do
-  pandoc_build ${format}
+  time pandoc_build ${format}
 done
