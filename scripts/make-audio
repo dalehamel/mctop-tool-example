@@ -21,7 +21,7 @@ generate_speech()
     echo -e "Generating speech for ${fname}"
     echo -e "\tPatching plain-text for ${fname} and optimizing text for playback"
     echo -e "\tSubmitting ${fname} to google translate for speech generation"
-    sed 's/[@.*]//g' $file | \
+    sed 's/\[.*\]//g' $file | \
       vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
       gtts-cli -f - -o $outfile
 
