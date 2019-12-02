@@ -133,40 +133,41 @@ Both signatures often refer to byte arrays of either binary or string data
 though, so the context of the data received here depends on the context that
 the probe is calling it from.
 
-In either case, it is necessary to read this data into a buffer. For this we
-declare a buffer inside of a struct:
+In either case, it is necessary to read this data into a buffer. For this a
+buffer is declared inside of a struct for `keystr`:
 
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=63 endLine=65}
 ```
 
-And then the struct is likewise initialized:
+This allows for the members of this struct to be easily mapped as members of
+Python objects. Inside the probe, the struct is initialized to 0:
 
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=77 endLine=77}
 ```
 
-And finally the data is copied into the character buffer `keystr` on the
-`keyhit_t` struct:
+This is used to received the data is copied into the character buffer `keystr`
+on the `keyhit_t` struct:
 
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=83 endLine=83}
 ```
 
-I also tried to use the `bcc` function `bpf_probe_read_str`, which I saw from
-the documentation was able to read a buffer of a fixed size until it found a
-null byte, which seemed perfect for this circumstance.[^14]
+An attempt was made to use `bcc` function `bpf_probe_read_str`  the
+documentation indicates is able to read a buffer of a fixed size until it
+finds a null-byte, which seemed to be a fitting solution the problem.[^14]
 
-It seemed to work some of the time, but when I benchmarked it I could see that
-some of the payload data was clearly making it into the key - it was reading
-too many bytes, and collecting data from the adjacent memory space.
+This worked more reliably and there were fewer errors, but when benchmarking
+was done at much higher call rates, it became clear that some of the payload
+must be making it into the buffer for the key read. This indicated that it was
+reading too many bytes, and collecting data from the adjacent memory space.
 
 ## Memcached key read quirks
 
 Originally I thought this might be a bug, so I filed an upstream issue
-[@memcached-dtrace-issue]. Despite the argument being of type `char *`, which
-elsewhere in the dtrace probe definitions meant string data, in turned out that
-in this instance, it wasn't guaranteed to be a null terminated string!
+[@memcached-dtrace-issue]. Despite the argument being of type `const char *`,
+in this instance, it wasn't guaranteed to be a null terminated string.
 
 Where the probe is called, it is using the macro `ITEM_key` to get the value
-that is fired to `dtrace`:
+that is passed to the Dtrace macro:
 
 ```{.c include=src/memcached/memcached.c startLine=1378 endLine=1378}
 ```
@@ -186,16 +187,18 @@ As I learned, Memcached doesn't necessarily store keys as null terminated
 strings, or even string data at all - it is arbitrary binary bytes. This is why
 it passes the argument `keylen` in the USDT probe, so that the correct size of
 the key can be read. Using the same process as above, I determined that the
-`keylen` argument was actually stored as a `uint_8`, and was able to get the
+`keylen` argument was actually stored as a `uint8_t`, and was able to get the
 key length easily enough. This was stored as `keysize`.
 
-### Degarbling in Userspace
+### De-garbling in Userspace
 
-Unfortunately, I wasn't able to use the `keysize`, as I got a verifier
-error if I tried to pass it, as it was determined to not be a const or provably
-safe value. To prevent this from blocking the development of the rest of the
-tool, I decided to pass the `keysize` value into userspace by adding it as a
-field to the value-data struct, and wrote a `degarbling` method in Python.
+Unfortunately, using this read `keysize` wasn't trivial, as it produced a
+verifier error if it was passed as an argument to the probe read function.
+This seemed to be because it was not a const or provably safe value.
+
+To prevent this from blocking the development of the rest of the tool, the
+`keysize` value was passed into userspace by adding it as a field to the
+value-data struct. This would enable de-garbling this data in Python.
 
 This meant that the same key could be hashed to multiple slots, as they would
 include whatever arbitrary data is after the key in the buffer that is read.
@@ -221,22 +224,23 @@ issue could be worked on.
 ### Convincing the verifier of safety
 
 With a working replacement of all of the basic `mctop` functionality, the priority
-became to try and fix the garbled keys at the right layer. Thanks to Bas Smit
-[@fbs] who pointed out to me that this was actually a solved problem in
-bpftrace, I had some renewed hope that there **must** be a way to get the eBPF
+became to try and fix the garbled keys at the right layer. Bas Smit [@fbs]
+pointed out on IRC that this was actually a solved problem in `bpftrace`.
+
+This gave some renewed hope that there **must** be a way to get the eBPF
 verifier to accept a non-const length read.
 
 Knowing that this works in bpftrace, it would make sense to take a look at how
-this is handled there, as that was a codebase I was already familiar with. This
-is the relevant LLVM IR generation from `bpftrace`:
+this is handled there, as that was a codebase. This is the relevant LLVM IR
+generation from `bpftrace`:
 
 ```{.cpp include=src/bpftrace/src/ast/codegen_llvm.cpp startLine=413 endLine=441}
 ```
 
 We can see that it generates the LLVM IR for doing a comparison between the
 size parameter given, and the maximum size. This is sufficient for it to pass
-the eBPF verification that this is a safe read and run inside in-kernel BPF
-virtual machine.
+the eBPF verification that this is a safe read and can run inside the 
+in-kernel BPF virtual machine.
 
 Looking into an existing issue for this in `bcc`, I attempted to do something
 similar in my probe definition, as described in iovisor/bcc#1260
@@ -248,8 +252,8 @@ This didn't work unfortunately, it threw this eBPF verifier error:
 ```
 
 As will be shown later, this message is more helpful than it seems, but at the
-time I ignored these values of -80 and 255 as I couldn't tell their
-significance, or what was meant by an invalid stack offset.
+time these values of -80 and 255  didn't seem significant, or what was meant by
+an invalid stack offset.
 
 A comment[@bpf-variable-memory] on iovisor/bcc#1260, provided a hint towards a
 mechanism which could be used to demonstrate safety for passing a non-const
@@ -258,9 +262,9 @@ length value to the probe read. In the commit message, this C snippet is used:
 ```{.c include=src/kernel-safety.c}
 ```
 
-That showed that a bitwise & with a const value was enough to convince the
+That showed that a bitwise AND with a const value was enough to convince the
 verifier that this was safe! Of course, this only really be easy if the const
-value as a hex mask with all bits activated, like `0xFF`
+value as a hex mask with all bits set, like `0xFF`
 
 In the Memcached source, we can see that `KEY_MAX_LENGTH` is `250`. This is
 close enough to 255 that a mask of `0xFF` would be able to mask:
@@ -274,11 +278,11 @@ from `keylen` into `keysize`, it will be safe, and that a buffer overflow
 cannot be possible.
 
 The binary representation of 0xFF (255 decimal) is `1111 1111`. To test this
-theory, I decided to flip that last bit to 0, to get `0111 1111`. Back to
-hexadecimal, this is 0x7F, and in decimal this is 127. By manually masking the
-`keysize` with this mask, it works and is accepted by the verifier! If,
-however, I drop the size of the buffer to 126, I get a verifier error once
-again.
+theory, I decided to flip that most significant bit to 0, to get `0111 1111`.
+Back to hexadecimal, this is 0x7F, and in decimal this is 127. By manually
+masking the `keysize` with this mask, it works and is accepted by the verifier!
+If, however, the size of the buffer is dropped to just 126, there is the 
+familiar verifier error once again.
 
 The reason why this happens is visible in the disassembly of the generated eBPF
 program:
@@ -287,7 +291,7 @@ program:
 ```
 
 By convention [@bpf-register-architecture], `R1` is used for the first argument
-to the call of `bpf_probe_read` (builtin function "4"), and `R2` is used for the
+to the call of `bpf_probe_read` (built-in function "4"), and `R2` is used for the
 second argument. `R6` is used as a temporary register, to store the value of
 `R10`, which is the frame pointer. From earlier in the disassembly code, we can
 see where the byte array is initialized.
@@ -307,22 +311,25 @@ see where the byte array is initialized.
 | R10      | rbp     |    frame pointer              |
 
 
-In the crashing version in looks like this:
+In the crashing version there is a `uint16_t` and a `uint32_t` near the start
+of the stack: 
 
 ```{.gnuassembler include=src/crashing.disasm startLine=5 endLine=22}
 ```
 
-But in the non-crashing version in looks like this:
+But in the non-crashing version, there is also a `uint8_t`:
 
 ```{.gnuassembler include=src/noncrashing.disasm startLine=5 endLine=23}
 ```
 
-The difference is subtle, but we can see that the crashing version
-allocates 15 u64 + 1 u32 + 1 u16. Converting this to bytes, we get (15 * 8 +
-1 * 4 + 1 * 2) = 126 bytes allocated.
+The difference is subtle, but comparing the space allocated on the stack, the 
+crashing version allocates 15 `uint64_t` + 1 `uint32_t` + 1 `uint16_t`.
+Converting this to bytes, this becomes (15 * 8 + 1 * 4 + 1 * 2) = 126 bytes
+allocated.
 
-In the non-crashing version, it is 15 u64 + 1 u32 + 1 u16 + 1 u8. In bytes,
-this works out to 127 bytes. So that verifier message for the crashing program:
+In the non-crashing version, it is 15 `uint64_t` + 1 `uint32_t` + 1 `uint16_t`
++ 1 `uint8_t`. This works out to 127 bytes. So that verifier message for the
+crashing program:
 
 ```gnuassembler
 60: (85) call bpf_probe_read#4
@@ -335,29 +342,30 @@ frame pointer, is not of sufficient size to be certain that the value read in
 
 To summarize, there were two ways to solve this issue - either increase the
 buffer size to 255 so that there was no way that the `uint8_t` container used
-by `keysize` could possible overflow it, or bitwise AND the `keysize` value
+by `keysize` could possiblly overflow it, or bitwise AND the `keysize` value
 with a hex-mask that is sufficient to prove it cannot be a buffer overflow.
 
-This might seem like a pain, but this extra logic is the cost of safety - this
+This might seem like a pain, but this extra logic is the cost of safety. This
 code will be running within the kernel context, and needs to pass the
 verifier's pat-down, as `libbpf` improves to make this sort of explicit proof
 of safety less necessary.
 
 ## Different signatures for USDT args
 
-During most of my testing, I tested only against the `SET` command, because
-this was convenient. Once I had a more fully-featured tool, I turned my
-attention to tracing the other commands. As I knew they all had the same
-signature from the `dtrace` probe definition, it was assumed to be an easy task
-of just iterating over all of the commands to trace.
+Most of the development was done by testing only with the `SET` command,
+because this was the most convenient. Once there was a more fully-featured
+tool, attention turned to tracing the other commands. As they all had the same
+signatures according to their Dtrace probe definitions, it was assumed to be an
+easy task to iterate over all of the commands to be traced.
 
-There was a nasty little surprise when I implemented `GET`. As it turns out,
-it has **more than one argument signature**:
+There was a nasty little surprise right away when implementing `GET`. As it
+turns out, it can have **more than one argument signature**, depending where
+it is called from:
 
 ```{.gnuassembler include=src/elfsignatures.txt startLine=28 endLine=33}
 ```
 
-This manifested as the `GET` requests returning 0 for `keylen` frequently, as
+This manifested as the `GET` requests frequently returning 0 for `keylen`, as
 it could be stored in either a `uint8_t` **OR** `a uint64_t`.
 
 To get around this, checking if the value was 0 and trying to read again with
