@@ -8,7 +8,7 @@ representation).
 
 In moving to writing the raw C to generate the eBPF code, there were a couple
 of hiccups in the form of rough edges that aren't as friendly as the
-faculties that `bpftrace` provides in its higher-level tracing language.
+faculties which `bpftrace` provides in its higher-level tracing language.
 
 ## Debugging
 
@@ -115,7 +115,7 @@ Now that probe data could be read, the UI could be replicated.
 
 In initial testing, there was a confusing bug where the same key was printed
 multiple times. It was iterating over a map where these apparently identical
-keys were supposed to be hashed to the same slot.
+keys were expected to be hashed to the same slot.
 
 After finding no bug in the display code, it seemed that the keys must
 actually not be the same, even though they looked to be identical when they
@@ -134,7 +134,7 @@ standard for indicating arbitrary binary data / down-casting to this could be
 
 Both signatures often refer to byte arrays of either binary or string data
 though, so the context of the data received here depends on the context that
-the probe is calling it from.
+the probe is calling it.
 
 In either case, it is necessary to read this data into a buffer. For this a
 buffer is declared inside of a struct for `keystr`:
@@ -154,9 +154,9 @@ on the `keyhit_t` struct:
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=83 endLine=83}
 ```
 
-An attempt was made to use `bcc` function `bpf_probe_read_str`  the
+An attempt was made to use the `bcc` function `bpf_probe_read_str`  the
 documentation indicates is able to read a buffer of a fixed size until it
-finds a null-byte, which seemed to be a fitting solution the problem.[^14]
+finds a null-byte, which seemed to be a fitting solution to the problem.[^14]
 
 This worked more reliably and there were fewer errors, but when benchmarking
 was done at much higher call rates, it became clear that some of the payload
@@ -218,8 +218,8 @@ To resolve this, a Python workaround was used to combine the keys in userspace:
 ```{.python include=src/mctop-garbled/tools/mctop.py startLine=148 endLine=170}
 ```
 
-This just added or replaced values as necessary, using a timestamp to take the
-more recent between the two if values were being replaced.
+This just added to or replaced values as necessary, using a timestamp to take
+the more recent between the two if values were being replaced.
 
 This was sufficient to finish the prototype, while a solution to the verifier
 issue could be worked on.
@@ -240,10 +240,11 @@ it is called from:
 ```
 
 This manifested as the `GET` requests frequently returning 0 for `keylen`, as
-it could be stored in either a `uint8_t` **OR** `a uint64_t`.
+it could be stored in either a `uint8_t` or `a uint64_t`.
 
 To get around this, checking if the value was 0 and trying to read again with
-a different (larger) storage class resulted in actually reading a value.
+a different (larger) storage class resulted in actually reading a value
+correctly.
 
 [^14]: Dormando [@dormando] mentioned in [@memcached-dtrace-issue]
 

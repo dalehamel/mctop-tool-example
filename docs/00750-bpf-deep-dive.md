@@ -7,9 +7,9 @@ verifier.
 ## Verifier error with variable read
 
 With a working replacement of all of the basic `mctop` functionality, the
-priority became to try and fix the garbled keys at the right layer - in the
+priority became to try and fix the garbled keys at the right layer: in the
 eBPF probe. Bas Smit [@fbs] pointed out on IRC that non-const probe reads for
-string data already a solved problem in `bpftrace`.
+string data already a problem `bpftrace` had solved.
 
 This gave some renewed hope that there **must** be a way to get the eBPF
 verifier to accept a non-const length read.
@@ -26,10 +26,10 @@ given, and the maximum size. This is sufficient for it to pass the eBPF
 verification that this is a safe read and can run inside the in-kernel
 BPF virtual machine.
 
-Taking inspiration from existing issue for this in `bcc`, the probe definition,
-as described in iovisor/bcc#1260 [@bcc-variable-read-issue-comment] to include
-a logical assertion that the `keysize` must be smaller than the buffer size via
-a ternary.
+Taking inspiration from an existing issue for this in `bcc`, the probe
+definition, as described in iovisor/bcc#1260 [@bcc-variable-read-issue-comment]
+to include a logical assertion that the `keysize` must be smaller than the
+buffer size via a ternary.
 
 This didn't work unfortunately, and it threw this eBPF verifier error:
 
@@ -38,7 +38,8 @@ This didn't work unfortunately, and it threw this eBPF verifier error:
 
 As will be shown later, this message is more helpful than it initially seems,
 but at the time these values of -80 and 255  didn't seem significant, and it
-wasn't clear what was meant by an invalid stack offset.
+wasn't clear what was meant by an invalid stack offset, as this code was
+generated and difficult to associate back to the C code which resulted in it.
 
 ## Safe Code Generation
 
@@ -51,10 +52,10 @@ length value to the probe read. In the commit message, this C snippet is used:
 
 That showed that a bitwise AND with a const value was enough to convince the
 verifier that this was safe! Of course, this only really be easy if the const
-value as a hex mask with all bits set, like `0xFF`
+value as a hex mask with all bits set, like `0xFF`.
 
 In the Memcached source, we can see that `KEY_MAX_LENGTH` is `250`. This is
-close enough to 255 that a mask of `0xFF` would be able to mask:
+close enough to 255 that a mask of `0xFF` could be applied:
 
 ```{.c include=src/memcached/memcached.h startLine=39 endLine=40}
 ```
@@ -65,9 +66,9 @@ from `keylen` into `keysize`, it will be safe, and that a buffer overflow
 cannot be possible.
 
 The binary representation of 0xFF (255 decimal) is `1111 1111`. To test this
-theory, that most significant bit can be flipped to 0, to get `0111 1111`.
+theory, the most significant bit can be flipped to 0, to get `0111 1111`.
 Back to hexadecimal, this is 0x7F, and in decimal this is 127. By manually
-comparing the `keysize` with this mask via bitwise AND, it works and is
+comparing the `keysize` with this mask via a bitwise AND, it works and is
 accepted by the verifier! If, however, the size of the buffer is dropped to
 just 126, there is the familiar verifier error once again.
 
@@ -78,9 +79,9 @@ program:
 ```
 
 By convention [@bpf-register-architecture], `R1` is used for the first argument
-to the call of `bpf_probe_read` (built-in function "4"), and `R2` is used for the
-second argument. `R6` is used as a temporary register, to store the value of
-`R10`, which is the frame pointer.
+to the call of `bpf_probe_read` (built-in function "4"), and `R2` is used for
+the second argument. `R6` is used as a temporary register, to store the value
+of `R10`, which is the frame pointer.
 
 | Register | x86 reg | Description                   |
 |----------|---------|-------------------------------|
