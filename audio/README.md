@@ -48,3 +48,11 @@ To use these `mp3` files with outputs formats that support it, a tag is
 inserted at the beginning of each level one header. This is what generates
 the pause/play dialog in modern web browsers and other compatible content
 players.
+
+## Why generate audio?
+
+For proofreading purposes, hearing text read-back aloud is really helpful in
+catching typos and confusing wording.
+
+Saving this output and embedding it in the output, the documents become
+accessible to those who cannot read them as easily.

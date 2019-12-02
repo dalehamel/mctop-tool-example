@@ -1,17 +1,21 @@
 # eBPF deep dive
 
-Convincing the verifier of safety
+This section gets into the assembly code disassembly in order to explain how
+to structure probes to ensure they will be accepted by the kernel's BPF
+verifier.
 
-With a working replacement of all of the basic `mctop` functionality, the priority
-became to try and fix the garbled keys at the right layer. Bas Smit [@fbs]
-pointed out on IRC that this was actually a solved problem in `bpftrace`.
+## Verifier error with variable read
+
+With a working replacement of all of the basic `mctop` functionality, the
+priority became to try and fix the garbled keys at the right layer. Bas Smit
+[@fbs] pointed out on IRC that this was actually a solved problem in `bpftrace`.
 
 This gave some renewed hope that there **must** be a way to get the eBPF
 verifier to accept a non-const length read.
 
 Knowing that this works in bpftrace, it would make sense to take a look at how
-this is handled there, as that was a codebase. This is the relevant LLVM IR
-generation from `bpftrace`:
+this is handled there. This is the relevant LLVM IR generation procedure from
+`bpftrace`:
 
 ```{.cpp include=src/bpftrace/src/ast/codegen_llvm.cpp startLine=413 endLine=441}
 ```
@@ -33,6 +37,8 @@ This didn't work unfortunately, it threw this eBPF verifier error:
 As will be shown later, this message is more helpful than it seems, but at the
 time these values of -80 and 255  didn't seem significant, or what was meant by
 an invalid stack offset.
+
+## Safe Code Generation
 
 A comment[@bpf-variable-memory] on iovisor/bcc#1260, provided a hint towards a
 mechanism which could be used to demonstrate safety for passing a non-const
