@@ -33,7 +33,7 @@ mitigate any issues that may arise.
 During one such exercise, my colleague Bassam Mansoob [@bassam] detected
 that there were a few instances where a specific Rails cache-ring would be
 overloaded under very high request rates. This reflected conditions we had seen
-in real prodution incidents. Problems were first detected with our
+in real production incidents. Problems were first detected with our
 higher-level statsd application monitoring:
 
 ![](img/request-queueing.png)
@@ -88,7 +88,7 @@ the impact without the cache is easy to spot:
 
 ![](img/without-cache.png)
 
-And with the in-memory cache, we saw a substantial reduction in latency:
+And with the in-memory cache, there was a substantial reduction in latency:
 
 ![](img/with-cache.png)
 
@@ -102,13 +102,13 @@ as the new cache was not busted very frequently:
 
 ![](img/with-cache-throughput.png)
 
-So a quick-and simple `bpftrace` one-liner was able to get us pretty far
-towards resolving this problem!
+So a quick-and simple `bpftrace` one-liner was able to get pretty far towards
+resolving this problem!
 
 Following this incident, the idea of making it easier to perform this type of 
-investigation with a bespoke tool came about. One of my colleagues[^4] pointed
-me towards `mctop`, and suggested I try to re-implement it in eBPF. This is
-what the remainder of this report will focus on.
+investigation with a bespoke tool came about[^4], and it was suggested to try
+and re-implement `mctop` in eBPF. This is what the remainder of this report
+will focus on.
 
 [^4]: Jason Hiltz-Laforge and Scott Francis, put the idea in my head. Jason had
       suggested it to Scott, attempting to "nerd-snipe"[@xkcd-356] him, but Scott

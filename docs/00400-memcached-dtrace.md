@@ -12,10 +12,9 @@ invoked:
 ```{.c include=src/memcached/memcached.c startLine=1358 endLine=1386}
 ```
 
-Unfortunately, when I checked a production Memcached instance with `tplist`
-or `bpftrace -l 'usdt:* -p $(pidof memcached)`, I didn't see any probes. This
-meant that I would need to find a way to modify our Memcached image to add
-Dtrace probes.
+Unfortunately, when a production Memcached instance was checked with `tplist`
+or `bpftrace -l 'usdt:* -p $(pidof memcached)`, no probes were shown. This
+meant there would be a need to modify the Memcached image to add Dtrace probes.
 
 The `Dockerfile` [@dockerfile] that was used is based on a production
 configuration which has been simplified for this analysis. The relevant
