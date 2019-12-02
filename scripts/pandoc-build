@@ -6,7 +6,7 @@ set -e
 if [ "$#" -ge 1 ];then
   IFS=',' read -ra FORMATS <<< "$@"
 else
-  FORMATS=(html pdf epub docx odt plain)
+  FORMATS=(html pdf epub docx odt pptx plain)
 fi
 # See https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/
 # for highlight style samples
@@ -17,6 +17,8 @@ CODE_HIGHLIGHT_STYLE=tango
 
 BIB_FORMAT_CSL=ieee-with-url
 
+# This will generate speech translations. See
+#   audio/README.md
 EMBED_AUDIO=true
 
 # See pandoc documentation
