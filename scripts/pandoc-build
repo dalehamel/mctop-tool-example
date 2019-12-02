@@ -6,7 +6,7 @@ set -e
 if [ "$#" -ge 1 ];then
   IFS=',' read -ra FORMATS <<< "$@"
 else
-  FORMATS=(html pdf epub docx odt pptx plain)
+  FORMATS=(html pdf epub docx odt pptx revealjs dzslides plain)
 fi
 # See https://www.garrickadenbuie.com/blog/pandoc-syntax-highlighting-examples/
 # for highlight style samples
@@ -78,6 +78,59 @@ EOF
           -t ${format} \
           --filter pandoc-crossref \
           -o "output/plain/$(basename $file).plain"
+     done
+  elif [ "${format}" == "revealjs" ] || [ "${format}" == "dzslides" ];then
+    mkdir -p output/js/${format}
+
+    for file in ${docs}; do
+      work_file="/tmp/$(basename $file).tmp"
+
+      cat ${file} | \
+        vim -E '+%s/^[\^\d\+\]:\_.*' +%p -cq! /dev/stdin |\
+        vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
+        vim -E '+%s/\(\S\+\_$\n\)/\1\r---\r/g' +%p -cq! /dev/stdin > ${work_file}
+
+      pandoc ${work_file} \
+        -s \
+        -t ${format} \
+        --slide-level 6 \
+        --metadata pagetitle=$(basename $file) \
+        --variable revealjs-url=https://revealjs.com \
+        --metadata date="$( date +'%D %X %Z')" \
+        --metadata link-citations=true \
+        --bibliography=bibliography.yaml \
+        --csl "${BIB_FORMAT_CSL}.csl" \
+        --filter pandoc-crossref \
+        --filter pandoc-citeproc \
+        --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
+        -o "output/js/${format}/$(basename $file).html"
+     done
+  elif [ "${format}" == "pptx" ];then
+     mkdir -p output/pptx
+     for file in ${docs}; do
+
+        work_file="/tmp/$(basename $file).tmp"
+
+        cat ${file} | \
+          vim -E '+%s/^[\^\d\+\]:\_.*' +%p -cq! /dev/stdin |\
+          vim -E '+%s/\(\S\)\n\(\S\)/\1 \2/' +%p -cq! /dev/stdin | \
+          vim -E '+%s/\(\S\+\_$\n\)/\1\r---\r/g' +%p -cq! /dev/stdin > ${work_file}
+        #cat $file | \
+        #  vim -E '+%s/\(\S\+\)\n\(\S\+\)/\1 \2/' +%p -cq! /dev/stdin | \
+        #  vim -E '+%s/^[\^\d\+\]:.*' +%p -cq! /dev/stdin | \
+        #  vim -E '+%s/\(\S\+\)\n/\1\r\r-----\r/g' +%p -cq! /dev/stdin |\
+        #  tee $work_file
+        pandoc ${work_file} \
+          -t ${format} \
+          --slide-level 6 \
+          --metadata date="$( date +'%D %X %Z')" \
+          --metadata link-citations=true \
+          --bibliography=bibliography.yaml \
+          --csl "${BIB_FORMAT_CSL}.csl" \
+          --filter pandoc-crossref \
+          --filter pandoc-citeproc \
+          --filter pandoc-include-code -s --highlight-style ${CODE_HIGHLIGHT_STYLE} \
+          -o "output/pptx/$(basename $file).pptx_part"
      done
   else
      pandoc ${docs} --toc \

@@ -2,6 +2,7 @@
 title: Developing the mctop tool with eBPF
 author: Dale Hamel
 
+revealjs-url: https://revealjs.com
 header-includes: |
     \usepackage{fvextra}
     \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
