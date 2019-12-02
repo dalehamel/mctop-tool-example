@@ -1,42 +1,44 @@
 # eBPF deep dive
 
-This section gets into the assembly code disassembly in order to explain how
+This section gets into the eBPF code disassembly in order to explain how
 to structure probes to ensure they will be accepted by the kernel's BPF
 verifier.
 
 ## Verifier error with variable read
 
 With a working replacement of all of the basic `mctop` functionality, the
-priority became to try and fix the garbled keys at the right layer. Bas Smit
-[@fbs] pointed out on IRC that this was actually a solved problem in `bpftrace`.
+priority became to try and fix the garbled keys at the right layer - in the
+eBPF probe. Bas Smit [@fbs] pointed out on IRC that non-const probe reads for
+string data already a solved problem in `bpftrace`.
 
 This gave some renewed hope that there **must** be a way to get the eBPF
 verifier to accept a non-const length read.
 
-Knowing that this works in bpftrace, it would make sense to take a look at how
+Knowing that this works in `bpftrace`, it would make sense to take a look at how
 this is handled there. This is the relevant LLVM IR generation procedure from
 `bpftrace`:
 
 ```{.cpp include=src/bpftrace/src/ast/codegen_llvm.cpp startLine=413 endLine=441}
 ```
 
-We can see that it generates the LLVM IR for doing a comparison between the
-size parameter given, and the maximum size. This is sufficient for it to pass
-the eBPF verification that this is a safe read and can run inside the 
-in-kernel BPF virtual machine.
+This generates the LLVM IR for doing a comparison between the size parameter
+given, and the maximum size. This is sufficient for it to pass the eBPF
+verification that this is a safe read and can run inside the in-kernel
+BPF virtual machine.
 
-Looking into an existing issue for this in `bcc`, I attempted to do something
-similar in my probe definition, as described in iovisor/bcc#1260
-[@bcc-variable-read-issue-comment].
+Taking inspiration from existing issue for this in `bcc`, the probe definition,
+as described in iovisor/bcc#1260 [@bcc-variable-read-issue-comment] to include
+a logical assertion that the `keysize` must be smaller than the buffer size via
+a ternary.
 
-This didn't work unfortunately, it threw this eBPF verifier error:
+This didn't work unfortunately, and it threw this eBPF verifier error:
 
 ```{.gnuassembler include=src/ebpf-error.txt startLine=136 endLine=142}
 ```
 
-As will be shown later, this message is more helpful than it seems, but at the
-time these values of -80 and 255  didn't seem significant, or what was meant by
-an invalid stack offset.
+As will be shown later, this message is more helpful than it initially seems,
+but at the time these values of -80 and 255  didn't seem significant, and it
+wasn't clear what was meant by an invalid stack offset.
 
 ## Safe Code Generation
 
@@ -63,11 +65,11 @@ from `keylen` into `keysize`, it will be safe, and that a buffer overflow
 cannot be possible.
 
 The binary representation of 0xFF (255 decimal) is `1111 1111`. To test this
-theory, I decided to flip that most significant bit to 0, to get `0111 1111`.
+theory, that most significant bit can be flipped to 0, to get `0111 1111`.
 Back to hexadecimal, this is 0x7F, and in decimal this is 127. By manually
-masking the `keysize` with this mask, it works and is accepted by the verifier!
-If, however, the size of the buffer is dropped to just 126, there is the 
-familiar verifier error once again.
+comparing the `keysize` with this mask via bitwise AND, it works and is
+accepted by the verifier! If, however, the size of the buffer is dropped to
+just 126, there is the familiar verifier error once again.
 
 The reason why this happens is visible in the disassembly of the generated eBPF
 program:
@@ -78,8 +80,7 @@ program:
 By convention [@bpf-register-architecture], `R1` is used for the first argument
 to the call of `bpf_probe_read` (built-in function "4"), and `R2` is used for the
 second argument. `R6` is used as a temporary register, to store the value of
-`R10`, which is the frame pointer. From earlier in the disassembly code, we can
-see where the byte array is initialized.
+`R10`, which is the frame pointer.
 
 | Register | x86 reg | Description                   |
 |----------|---------|-------------------------------|
@@ -95,9 +96,9 @@ see where the byte array is initialized.
 | R9       | r15     |    callee saved               |
 | R10      | rbp     |    frame pointer              |
 
-
-In the crashing version there is a `uint16_t` and a `uint32_t` near the start
-of the stack: 
+The disassembly shows the buffer is initialized right at the start, putting
+the struct initialization at the bottom of the stack. In the crashing version
+there is a `uint16_t` and a `uint32_t` near the start of the stack:
 
 ```{.gnuassembler include=src/crashing.disasm startLine=5 endLine=22}
 ```
@@ -121,18 +122,16 @@ crashing program:
 invalid indirect read from stack off -128+126 size 127
 ```
 
-Is complaining about the first argument, `R1`, which is set relative to the
+Is complaining that the first argument, `R1`, which is set relative to the
 frame pointer, is not of sufficient size to be certain that the value read in
 `R2` (guaranteed by the bitwise AND operation to be no more than 127).
 
 To summarize, there were two ways to solve this issue - either increase the
 buffer size to 255 so that there was no way that the `uint8_t` container used
-by `keysize` could possiblly overflow it, or bitwise AND the `keysize` value
+by `keysize` could possibly overflow it, or a bitwise AND the `keysize` value
 with a hex-mask that is sufficient to prove it cannot be a buffer overflow.
 
 This might seem like a pain, but this extra logic is the cost of safety. This
 code will be running within the kernel context, and needs to pass the
-verifier's pat-down, as `libbpf` improves to make this sort of explicit proof
-of safety less necessary.
-
-
+verifier's pat-down. In the meantime, `libbpf` continues to improve to make
+this sort of explicit proof of safety less necessary.

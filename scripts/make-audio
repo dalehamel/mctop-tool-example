@@ -25,7 +25,7 @@ generate_speech()
 
     if [ -f audio/phonetics.txt ];then
       while read k v; do
-          sed -i "s/$k/$(echo $v | tr -d \")/gI" /tmp/$fname
+          sed -i "s/$(echo $k | tr -d \" | sed 's/\*/\\\*/g')/$(echo $v | tr -d \")/gI" /tmp/$fname
       done < audio/phonetics.txt
     fi
     # I can't figure out a way to join multiple adjacent lines of a paragraph
