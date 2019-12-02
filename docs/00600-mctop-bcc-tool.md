@@ -1,7 +1,7 @@
 # Getting started on a bcc tool
 
 To make a fully-featured port of `mctop`, `bpftrace` wouldn't quite fit the
-bill, as it doesn't have quite the same flexibility as python when it comes to
+bill, as it doesn't have quite the same flexibility as Python when it comes to
 post-processing data.
 
 ## USDT example
@@ -30,9 +30,9 @@ Python (for the UI and post-processing / deriving second-order values).
 
 "When in Rome, do as the Romans do"
 
-To get an idea of how USDT probes were used in real-world scripts, I decided to
-check out a couple of the existing bcc tools, to gain inspiration and a better
-understanding of how to port my bpftrace script to bcc.
+To get an idea of how USDT probes were used in real-world scripts, existing
+bcc tools are a good source inspiration and to gain better understanding of
+how to port the `bpftrace` script to `bcc.
 
 ### mysqld_qslower.py
 
@@ -53,7 +53,7 @@ tools in bcc. It does a little bit of meta-programming, in that it swaps out
 function calls and arguments to match that of the runtime for the target
 language. This allows for it to share the same control logic, regardless of
 which language is being traced. For instance, for Ruby it sets the probe
-points here:
+points at one location:
 
 ```{.python include=src/bcc/tools/lib/ucalls.py startLine=91 endLine=96}
 ```
@@ -71,19 +71,20 @@ vary somewhat depending on what probes the runtime maintainers choose to
 expose.
 
 These scripts provided a wealth of examples for how USDT tracing was already
-being done in `bcc`, and a starting point.
+being done in `bcc`, and a jumping off point for a new tool.
 
 ### slabratetop.py
 
 UI / UX design isn't my forte, and apparently imitation is the sincerest form
-of flattery. To start with, I looked through the `*top.py` `top`-like tools for
+of flattery. To start with, I looked through the `\*top.py` `top`-like tools for
 one to base the structure of my program on. A fine example was
 `slabratetop.py`, which happens to be the Python version of the `bpftrace`
-script that I showed earlier. The design of its main control loop and argument
-parsing were the main concepts borrowed:
+script that was showed earlier. The design of its main control loop and
+argument parsing were the main concepts borrowed:
 
 ```{.python include=src/bcc/tools/slabratetop.py startLine=112 endLine=143}
 ```
 
 This was then blended with the `select` approach used by the Ruby `mctop` in
-order to receive keyboard input, which I'll be covering in more detail later.
+order to receive keyboard input, which will be covered in more detail in the
+UI section of this document.

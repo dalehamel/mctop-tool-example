@@ -9,8 +9,9 @@ In the Dtrace probe definitions file:
 ```{.c include=src/memcached/memcached_dtrace.d startLine=205 endLine=214}
 ```
 
-This `command__set` probe negates the need to parse this the command string,
-and it looks like all of the other commands also have Dtrace probes.
+This `command__set` probe negates the need to parse the command string to get
+the values from it, and it looks like all of the other commands also have
+Dtrace probes with similar signatures.
 
 These definitions are generated into header macros that are callable from the
 Memcached source code. This is what the calls to emit data to a probe look
@@ -27,7 +28,7 @@ tools can send test commands in the Memcached string protocol:
 ```
 
 By reading arg3 to get the probe size, a bpftrace script could be
-written that provided similar output to mctop, at least for the SET
+written that provided similar output to `mctop`, at least for the SET
 command:
 
 ```{.awk include=src/mcsnoop-orig.bt}
@@ -35,8 +36,8 @@ command:
 
 But this wasn't really a `top`-like tool, it just prints results as it gets
 data. To see how this might be done, Brendan Gregg's examples from
-his new book's [@bpf-perf-tools-book] repo[@bpf-tools-book-repo], has 
-slabratetop.bt:
+his new book's [@bpf-perf-tools-book] git repository [@bpf-tools-book-repo],
+has  slabratetop.bt:
 
 ```{.awk include=src/bpf-perf-tools-book/originals/Ch14_Kernel/slabratetop.bt startLine=16 endLine=35}
 ```
@@ -46,9 +47,9 @@ limitations of doing so. You can basically just print the map data out on a
 recurring interval.
 
 So for a UI, this was about the limit of what `bpftrace` could easily
-provide. It is great for analyzing map data, but not so great at
-producing interactive top-like UIs yet, as that involves some
-sophisticated post-processing of the map data.
+provide. It is great for analyzing map data, but not so great at producing
+interactive top-like UIs yet, as that involves some sophisticated
+post-processing of the map data.
 
 Ultimately, the most complete working version of this `bpftrace` prototype
 is something more like a sniffer, so a name like `mcsnoop`, is more

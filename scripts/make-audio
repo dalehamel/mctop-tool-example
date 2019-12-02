@@ -28,7 +28,6 @@ generate_speech()
           sed -i "s/$k/$(echo $v | tr -d \")/gI" /tmp/$fname
       done < audio/phonetics.txt
     fi
-
     # I can't figure out a way to join multiple adjacent lines of a paragraph
     # with sed or perl, but this vim stream seems to do the trick, and vim is in
     # the docker container, and it's a regex so it's kinda cryptic anyways

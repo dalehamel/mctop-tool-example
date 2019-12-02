@@ -1,13 +1,13 @@
 # Issues developing bcc tool
 
-In moving from the `bpftrace` prototype to a fully-fledged bcc-based python
-tool, inevitably I ran into some issues. `bpftrace` does a lot of smart stuff
+In moving from the `bpftrace` prototype to a fully-fledged `bcc`-based Python
+tool, inevitably there were some issues. `bpftrace` does a lot of smart stuff
 under the hood, and basically does the equivalent of writing these C-based
 segments of the eBPF probes for you, using LLVM IR (intermediate
 representation).
 
-In moving to writing the raw C to generate the eBPF code myself, I ran into a
-couple of hiccups as I hit rough edges that weren't as friendly as the
+In moving to writing the raw C to generate the eBPF code, there were a couple
+of hiccups as in the form of rough edges that aren't as friendly as the
 faculties that `bpftrace` provides in its higher-level tracing language.
 
 ## Debugging
@@ -23,7 +23,7 @@ sudo cat /sys/kernel/debug/tracing/trace_pipe
 ## Being able to read the data
 
 The original eBPF trace function was based on the sample code. I just read
-the dtrace spec for `command__set`, to determine the argument ordering for the
+the Dtrace spec for `command__set`, to determine the argument ordering for the
 and type information:
 
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=67 endLine=90}
@@ -35,21 +35,21 @@ replicate the key size feature of the original `mctop`.
 
 The calls to `bpf_usdt_readarg` are reading the parameter into a 64 bit
 container. Sometimes this is for literal values, and sometimes it is for
-addresses. Reading literal values is easy, they are simply copied into the
-address passed in as the third argument, as the `&` operator is used for. This
-is why the `u64 keystr = 0, bytecount = 0;` is above, to declare the sizes of
-these storage containers as 64 bits, unsigned.
+addresses. Reading literal values is easy and efficient, they are simply
+copied into the address passed in as the third argument, as the `&` operator is
+used for. This is why the `u64 keystr = 0, bytecount = 0;` is in the code, to
+declare the sizes of these storage containers as 64 bits, unsigned.
 
 In `bpftrace`, almost all storage is done in 64 bit unsigned integers like
-this, and it is a pretty normal standard to just use a large container
-like this that is the size of a machine word on modern microprocessors.
-This is because typing information is handled differently.
+this, and it is a pretty normal standard to just use a container that is
+the size of a machine word on modern microprocessors. This is because typing
+information is handled differently.
 
 As it turns out, for reading types properly, it is best with bcc to match the
 storage class to the argument type you are trying to read, otherwise the
 result you get on a type mismatch when you try to do the probe read may be 0.
 
-To fix this problem, which is something I have encountered before
+To fix this problem, which is something encountered before
 [@usdt-report-doc] in my work on Ruby USDT tracing, I turned to the Systemtap
 wiki page [@stap-wiki-ust] for an explanation on the elf note format, which I
 was familiar with from working with `libstapsdt`.
@@ -70,24 +70,28 @@ Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
 
 Using the table from the systemtap wiki:
 
-| Arg code | Storage Class    |
-|----------|:-----------------|
-| 1        | 8 bits unsigned  |
-|-1        | 8 bits signed    |
-| 2        | 16 bits unsigned |
-|-2        | 16 bits signed   |
-| 4        | 32 bits unsigned |
-|-4        | 32 bits signed   |
-| 8        | 64 bits unsigned |
-|-8        | 64 bits signed   |
+| Arg code | Description      | Storage Class |
+|----------|:-----------------| ------------- |
+| 1        | 8 bits unsigned  | `uint8_t`     |
+|-1        | 8 bits signed    | `int8_t`      |
+| 2        | 16 bits unsigned | `uint16_t`    |
+|-2        | 16 bits signed   | `int16_t`     |
+| 4        | 32 bits unsigned | `uint32_t`    |
+|-4        | 32 bits signed   | `int32_t`     |
+| 8        | 64 bits unsigned | `uint64_t`    |
+|-8        | 64 bits signed   | `int64_t`     |
 
 [@stap-wiki-ust]
 
 We can decode this as:
 
-| Arguments     | -4@%edx | 8@%rsi   |1@%cl    |-4@%eax  |8@-24(%rbp)|
-|---------------|---------|----------|---------|---------|-----------|
-| Storage Class |`int32_t`|`uint64_t`|`uint8_t`|`int32_t`|`uint64_t` |
+| Args from ELF notes |  Storage Class  |
+|---------------------|-----------------|
+| -4@...              | `int32_t`       |
+| 8@...               | `uint64_t`      |
+| 1@...               | `uint8_t`       |
+|-4@...               | `int32_t`       |
+| 8@...               | `uint64_t`      |
 
 So, we can take it that the 4th argument to `command__set`'s probe call is
 actually meant to be stored in a signed 32-bit int!
@@ -107,20 +111,28 @@ class without truncation.
 
 Now that probe data could be read, the UI could be replicated.
 
-In my initial testing, I thought I was going crazy as I was seeing the same key
-printed multiple times, as I was iterating over a map where this is supposed to
-be hashed to the same slot. After looking for a bug in the display code, I
-realized that the keys must not be the same, even though they looked to be when
-they were printed to the screen: some other unintended data must have been
-making it into the string buffer, and "garbling the keys".
+In initial testing, there was a confusing bug where the same key was printed
+multiple times. It was iterating over a map where these apparently identical
+keys were supposed to be hashed to the same slot.
 
-I had mostly been testing with one request at a time, but once I started to
-script sending requests to the test Memcached instance, the pattern became
-much more obvious.
+After finding no bug in the displays code, it seemed that the keys must
+actually not be the same, even though they looked to be when they were printed
+to the screen. Some other unintended data must have been making it into the 
+string buffer, and "garbling the keys".
 
-In the case of the string, it is meant to be a pointer from its `const char *`
-type signature, though earlier in `process__command`, it is `const void *`.
-Both signatures often refer to byte arrays of either binary or string data.
+Early tests were mostly with one request at a time, but once this was scripted
+to increase the call rate and vary the keys, the pattern became much more
+obvious.
+
+In the case of the string, its `const char *` signature, which would hint at
+a string though is possibly a byte array. The earlier use of
+`process__command`, had `const void *` in its signature, which would be
+standard for indicating arbitrary data.
+
+Both signatures often refer to byte arrays of either binary or string data
+though, so the context of the data received here depends on the context that
+the probe is calling it from.
+
 In either case, it is necessary to read this data into a buffer. For this we
 declare a buffer inside of a struct:
 
