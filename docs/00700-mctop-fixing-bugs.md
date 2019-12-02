@@ -12,8 +12,8 @@ faculties that `bpftrace` provides in its higher-level tracing language.
 
 ## Debugging
 
-To start off, To be able to print data in a way that can be readily used in
-debugging scenarios, we can use the built-in `bpf_trace_printk` which is a
+To start off, to be able to print data in a way that can be readily used in
+debugging scenarios, the built-in `bpf_trace_printk` can be used, which is a
 printf-like interface. To read these values out of the kernel:
 
 ```
@@ -23,20 +23,20 @@ sudo cat /sys/kernel/debug/tracing/trace_pipe
 ## Being able to read the data
 
 The original eBPF trace function was based on the sample code from `bcc`. The
-Dtrace spec for `command__set`, can be used to determine the argument ordering
-and type information:
+Dtrace probe spec for `command__set`, can be used to determine the argument
+ordering and type information:
 
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=67 endLine=90}
 ```
 
 This basic probe was printing data for the key! But it wasn't reading anything
-for the size parameter that, which was needed in order to replicate the key
-size feature of the original `mctop`.
+for the size parameter, which was needed in order to replicate the key size
+feature of the original `mctop`.
 
 The calls to `bpf_usdt_readarg` are reading the parameter into a 64 bit
 container. Sometimes this is for literal values, and sometimes it is for
 addresses. Reading literal values is easy and efficient, they are simply
-copied into the address passed in as the third argument, as the bitwise `&`
+copied into the address passed in as the third argument, as the bitwise AND
 operator is used for. This is why `u64 keystr = 0, bytecount = 0;` is in
 the code, to declare the sizes of these storage containers as 64 bits,
 unsigned.
@@ -47,9 +47,9 @@ the size of a machine word on modern microprocessors. This is because type
 information is handled differently in `bpftrace`, and reads are cast to the
 appropriate storage class for their type before they occur.
 
-As it turns out, for reading types properly, it is best with `bcc` to match the
-storage class to the argument type being read, otherwise the result of a type
-mismatch on the probe read may result in a 0 value.
+As it turns out, for reading USDT args properly, it is best with `bcc` to match
+the storage class to the argument type being read, otherwise the result of a
+type mismatch on the probe read may result in a 0 value.
 
 To fix this problem, which is something also encountered in a separate report
 on Ruby USDT tracing [@usdt-report-doc], the Systemtap wiki page
@@ -67,7 +67,7 @@ The argument signature token to the left[^17] of the @ symbol is what can be
 used to decode the type.
 
 ```
-Arguments: -4@%edx 8@%rsi 1@%cl -4@%eax 8@-24(%rbp)
+Arguments: -4@... 8@... 1@... -4@... 8@...
 ```
 
 Using the table from the Systemtap wiki:
