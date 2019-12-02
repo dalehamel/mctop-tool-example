@@ -1,14 +1,14 @@
 # hot keys and mctop
 
 The topic of hot keys in Memcached has been well-studied, and tools have
-existed to support this ecosystem long since before eBPF was on the scene.
+existed to support this ecosystem since long before eBPF was on the scene.
 
 An investigation into a cache hot-spotting problem lead to a eBPF-based
 redevelopment of the original `libpcap`-based `mctop` tool.
 
 This report is verbose, and attempts to assume no advanced knowledge of eBPF,
-the `ELF` format, or Memcached itself. An extensive bibliography covers more
-works that can hopefully fill what gaps this report leaves.
+the `ELF` format, or Memcached itself. The referenced works can hopefully fill
+what gaps this report leaves.
 
 ## mctop
 
@@ -22,8 +22,8 @@ key access, with basic abilities to sort the data by column. Awareness
 of hot keys can inform application decisions of how best to utilize
 caching patterns under heavy load.
 
-This is a screen capture of the redeveloped `mctop` built on eBPF and USDT
-tracing:
+This is a screen capture of the redeveloped `mctop` tool built with eBPF and
+USDT tracing:
 
 ![](./img/mctop.gif)
 

@@ -4,7 +4,7 @@ If an application supports USDT tracepoints already, then no
 modification of the source code is necessary. Fortunately, Memcached
 already includes Dtrace probes and strategic spots within the codebase.
 
-The presence of this established pattern for comprehensive dtrace
+The presence of this established pattern for comprehensive Dtrace
 tracepoints significantly simplified building a lightweight and simple
 tool. This section of the Memcached source, shows how these probes are
 invoked:
@@ -39,7 +39,7 @@ sufficient:
 The image can be built with `Docker build . -t memcached-dtrace` in this
 directory, producing a Memcached image with dtrace probes.
 
-During the configure process, I can see that it finds the dtrace stub:
+During the configure process, this output indicates it finds the Dtrace stub:
 
 ```
 ...
@@ -48,7 +48,7 @@ checking for dtrace... /usr/bin/dtrace
 ```
 
 Later on it generates a header `memcached_dtrace.h`, which is conditionally
-included when dtrace probes are enabled: [^9]
+included when Dtrace probes are enabled: [^9]
 
 ```{.bash include=src/dtrace-generate.txt}
 ```
@@ -93,7 +93,7 @@ Shows These tracepoints[^16]:
 ```{.bash include=src/tracepoints.txt}
 ```
 
-This showed that probes had been recognized on the binary, and so had
+This showed that probes had been recognized on the ELF binary, and so had
 been compiled-in successfully, even though there was no available OS
 package. This shows the ease with which these probes can be applied to
 existing application suites.
@@ -104,13 +104,14 @@ With USDT support now confirmed, a probe can be built that targets the
 ```{.c include=src/memcached/memcached_dtrace.d startLine=168 endLine=174}
 ```
 
-Based on this, the uprobe tool from earlier can be rewritten as:
+The uprobe tool from earlier can be rewritten to target this static tracepoint:
 
 ```{.awk include=src/mcsnoop-usdt.bt}
 ```
 
-This serves as a minimal proof of concept, but is nowhere close to being
-on-par with the data that the original `mctop` tool could provide.
+This serves as a minimal proof of concept that the same tool can be built with
+a USDT probe, but is nowhere near parity for the data that the original `mctop`
+tool could provide.
 
 [^8]: there is a bug right now where this isn't working for
       containerized processes, this will be fixed in a future bpftrace /

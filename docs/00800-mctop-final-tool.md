@@ -51,8 +51,8 @@ So too was this almost directly ported to Python:
 ```
 
 The concept is just a giant if-ladder, as Python has no case statements. This
-matches on the letters, and kick off whatever function or change whatever
-configuration they need to. This got complicated as I added more keys to allow
+matches on the letters, and can run a function or update a global variable as
+the specific case requires. This got complicated as I added more keys to allow
 for navigation of the sorted key data.
 
 ### Sorting

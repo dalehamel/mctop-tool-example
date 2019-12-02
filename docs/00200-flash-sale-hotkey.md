@@ -10,12 +10,12 @@ Success in a flash sale, unsurprisingly, depends heavily on being able to
 efficiently serve cached data. If a cache isn't performing well, the sale won't
 go well. Much of the contention in a flash sale is on the database. There are
 several caching strategies in place that protect requests from hammering the
-MySQL instance for a Shopify Pod [^10] of shops. By sharing access to a cache
-across a pool of web workers, all web workers within a Shopify Pod benefit from
-this large pool of surge capacity.
+MySQL database instance for a Shopify Pod [^10] of shops. By sharing access to
+a cache across a pool of web workers, all web workers within a Shopify Pod
+benefit from this large pool of surge capacity.
 
 Despite optimization efforts, in some sales, there can be performance issues.
-Following on an investigation of a sale that didn't go well, we decided to
+Following on an investigation of a sale that didn't go so well, we decided to
 perform some hot-key analysis on a (not real) test shop using a load testing
 tool. During these load tests, we developed some instrumentation with
 `bpftrace` to gain insight into the cache access patterns.
@@ -33,7 +33,7 @@ mitigate any issues that may arise.
 During one such exercise, my colleague Bassam Mansoob [@bassam] detected
 that there were a few instances where a specific Rails cache-ring would be
 overloaded under very high request rates. This reflected conditions we had seen
-in real production incidents. Problems were first detected with our
+in real prodution incidents. Problems were first detected with our
 higher-level statsd application monitoring:
 
 ![](img/request-queueing.png)
@@ -49,9 +49,9 @@ the production Memcached instance we were examining in our Red/Blue exercise.
 
 ### Hot key detection with bpftrace
 
-We used `bpftrace` to probe the Memcached process that Was targetted by our
-load-testing tool. For one cache we found one extremely hot key using our first
-uprobe-based prototype[^3]:
+We used `bpftrace` to probe the Memcached process that was targeted by our
+load-testing tool. For one cache we quickly found one extremely hot key using
+our first uprobe-based prototype[^3]:
 
 
 ```{.awk include=src/bpftrace-rails-keys.txt}
@@ -61,7 +61,7 @@ It seemed like the cache entry used to determine the ratio of for a particular
 feature that should be enabled was a very hot key, as the same command was
 being hit at dramatically higher rates than other keys.
 
-In our identity cache, used for checking if feature flags for new code are
+In our identity cache, used here for checking if feature flags for new code are
 enabled, we found keys that were being hit very frequently:
 
 ```{.awk include=src/bpftrace-feature-keys.txt}
@@ -69,12 +69,12 @@ enabled, we found keys that were being hit very frequently:
 
 Having gained a quick view into what keys were especially hot, we could
 direct our mitigation efforts towards investigating the code-paths that
-were interacting with them.
+were interacting with these keys.
 
 ## Hot key mitigation
 
 Since these keys do not change very frequently, we decided to introduce
-an in-memory cache at the application layer inside of rails itself. With
+an in-memory cache at the application layer inside of Rails itself. With
 a TTL of a full minute, it would hit Memcached much less frequently.
 
 The change was simple, but the results were remarkable. Without the
@@ -83,7 +83,7 @@ proxy.
 
 ## Performance Results
 
-During these hot-spotting events during real or simulated flash sales,
+During these hot-spotting events from real or simulated flash sales,
 the impact without the cache is easy to spot:
 
 ![](img/without-cache.png)
@@ -97,8 +97,8 @@ spiked:
 
 ![](img/without-cache-throughput.png)
 
-And the improvements with the in-memory cache, throughput was much lower as
-the new cache was not busted very frequently:
+And with the improvements from the in-memory cache, throughput was much lower
+as the new cache was not busted very frequently:
 
 ![](img/with-cache-throughput.png)
 

@@ -47,8 +47,8 @@ Which shows us that it is indeed a symbol we can access:
 ```{.gnuassembler include=src/objdump.txt}
 ```
 
-This is how `bpftrace` will target the probe, and seeing this is all that is
-needed in order to try probing it.
+This is how `bpftrace` will target the probe, by resolving the address of this
+symbol in the code region of the target process' memory region.
 
 ## uprobe prototype
 
@@ -58,15 +58,16 @@ hit, our eBPF probe is fired, and bpftrace can read the data from it.
 
 The simplest solution and first step towards a more sophisticated tool
 is to just read the command and print it which can easily be done as a
-bpftrace one-liner:
+`bpftrace` one-liner:
 
 ```awk
-bpftrace -e 'uprobe:/proc/896719/root/usr/local/bin/memcached:process_command { printf("%s\n", str(arg1)) }'
+bpftrace -e 'uprobe:/proc/ROOT/root/usr/local/bin/memcached:process_command { printf("%s\n", str(arg1)) }'
 ```
 [^6]
 
 Then running a test command on Memcached generates probe output! This shows
-that `bpftrace` can read data from user-space using the kernel.
+that `bpftrace` can read data from user-space using the kernel's `uprobe`
+abilities.
 
 ```
 Attaching 1 probe...
@@ -91,7 +92,7 @@ passed of a known type.
 
 The problem of building more flexible tools is better solved by the use of the
 USDT tracepoint protocol for defining static tracepoints. Fortunately, this has
-already been established in many packages by the popular use of `dtrace`
+already been established in many packages by the popular use of Dtrace
 on other Unix platforms like Solaris, BSD, and their derivatives, such as
 Darwin. Systemtap has provided Linux compatibility, which is what `bpftrace`
 and `bcc` are able to leverage.
