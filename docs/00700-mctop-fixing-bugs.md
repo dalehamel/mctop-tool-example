@@ -22,9 +22,9 @@ sudo cat /sys/kernel/debug/tracing/trace_pipe
 
 ## Being able to read the data
 
-The original eBPF trace function was based on the sample code. The Dtrace spec
-for `command__set`, can be used to determine the argument ordering and type
-information:
+The original eBPF trace function was based on the sample code from `bcc`. The
+Dtrace spec for `command__set`, can be used to determine the argument ordering
+and type information:
 
 ```{.c include=src/mctop-basic/tools/mctop.py startLine=67 endLine=90}
 ```
@@ -37,24 +37,24 @@ The calls to `bpf_usdt_readarg` are reading the parameter into a 64 bit
 container. Sometimes this is for literal values, and sometimes it is for
 addresses. Reading literal values is easy and efficient, they are simply
 copied into the address passed in as the third argument, as the bitwise `&`
-operator is used for. This is why the `u64 keystr = 0, bytecount = 0;` is in
+operator is used for. This is why `u64 keystr = 0, bytecount = 0;` is in
 the code, to declare the sizes of these storage containers as 64 bits,
 unsigned.
 
 In `bpftrace`, almost all storage is done in 64 bit unsigned integers like
 this, and it is a pretty normal standard to just use a container that is
-the size of a machine word on modern microprocessors. This is because typing
+the size of a machine word on modern microprocessors. This is because type
 information is handled differently in `bpftrace`, and reads are cast to the
 appropriate storage class for their type before they occur.
 
 As it turns out, for reading types properly, it is best with `bcc` to match the
-storage class to the argument type you are trying to read, otherwise the
-result of a type mismatch on the probe read may result in a 0 value.
+storage class to the argument type being read, otherwise the result of a type
+mismatch on the probe read may result in a 0 value.
 
 To fix this problem, which is something also encountered in a separate report
-Ruby USDT tracing [@usdt-report-doc], the Systemtap wiki page [@stap-wiki-ust]
-has an explanation on the ELF note format, which is also used by `libstapsdt`
-when generating type signatures for probe arguments.
+on Ruby USDT tracing [@usdt-report-doc], the Systemtap wiki page
+[@stap-wiki-ust] has an explanation on the ELF note format, which is also used
+by `libstapsdt` when generating type signatures for probe arguments.
 
 The command `readelf --notes` can be used to show the probe addresses that are
 added by the `systemtap` dtrace compatibility headers, supplying `sys/sdt.h` to
