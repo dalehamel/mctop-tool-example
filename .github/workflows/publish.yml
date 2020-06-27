@@ -12,6 +12,10 @@ jobs:
       - name: Run pandoc build
         run: |
           script -e -c "make"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: output
       - name: Commit generated files for pages build
         if: github.ref == 'refs/heads/master'
         run: |
@@ -20,10 +24,6 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "Add changes for gh pages"
-      - uses: actions/upload-artifact@v2
-        with:
-          name: output
-          path: output
       - name: Push changes to gh-pages
         if: github.ref == 'refs/heads/master'
         uses: ad-m/github-push-action@master
