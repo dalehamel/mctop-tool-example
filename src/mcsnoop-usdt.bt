@@ -1,4 +1,0 @@
-usdt::memcached:process__command,
-{
-  @calls[str(arg1)]++;
-}

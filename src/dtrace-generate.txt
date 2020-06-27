@@ -1,5 +1,0 @@
-/usr/bin/dtrace -h -s memcached_dtrace.d
-sed -e 's,void \*,const void \*,g' memcached_dtrace.h | \
-            sed -e 's,char \*,const char \*,g' | tr '\t' ' ' > mmc_dtrace.tmp
-mv mmc_dtrace.tmp memcached_dtrace.h
-

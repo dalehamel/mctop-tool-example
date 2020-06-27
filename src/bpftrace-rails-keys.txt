@@ -1,5 +1,0 @@
-@command[gets podYYYrails:NN::feature_rollout:percentages]: 6579978
-@command[delete podYYY:rails:NN::jobs-KEY ...]: 2854
-@command[delete podYYY:rails:NN::jobs-KEY ...]: 3572
-@command[gets podYYY:rails:NN::shop-KEY ...]: 5638
-@command[set podYYY:rails:NN::KEY 1 30 13961]: 9266
