@@ -9,9 +9,6 @@ jobs:
         with:
           persist-credentials: false
           submodules: true
-      - name: Generate audio
-        run: |
-          script -e -c "make audio"
       - name: Run pandoc build
         run: |
           script -e -c "make"
