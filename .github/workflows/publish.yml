@@ -16,6 +16,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           rm .gitignore
+          rm -rf .github
           git add .
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
