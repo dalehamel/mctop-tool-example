@@ -10,10 +10,10 @@ jobs:
           persist-credentials: false
       - name: Generate audio
         run: |
-          script -c "make audio"
+          script -e -c "make audio"
       - name: Run pandoc build
         run: |
-          script -c "make"
+          script -e -c "make"
       - name: Commit generated files for pages build
         if: github.ref == 'refs/heads/master'
         run: |
