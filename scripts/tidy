@@ -5,7 +5,14 @@
 find src -type l | grep tests/lua/spec | xargs rm -f
 
 # Remove .gitignore so that ignored output is published
-rm .gitignore
+rm -f .gitignore
+
+# Remove github actions folder
+rm -rf .github
+
+# Remove submodules and de-init
+rm -f .gitmodules
+rm -rf src
 
 # This script can be extended to toss away any other artifacts that prevent page builds
 # and aren't needed.

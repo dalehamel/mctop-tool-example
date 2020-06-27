@@ -15,8 +15,7 @@ jobs:
       - name: Commit generated files for pages build
         if: github.ref == 'refs/heads/master'
         run: |
-          rm -f .gitignore
-          rm -rf .github
+          ./scripts/tidy
           git add .
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
